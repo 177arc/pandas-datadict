@@ -1,5 +1,5 @@
 import unittest
-from datadict.datadict import DataDict
+from datadict import DataDict
 import logging as log
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
@@ -9,7 +9,7 @@ import numpy as np
 log.basicConfig(level=log.INFO, format='%(message)s')
 
 
-class TestDataDic(unittest.TestCase):
+class TestDataDict(unittest.TestCase):
     def test_file_and_data_frame(self):
         with self.assertRaisesRegex(ValueError, 'data_dict_file.+data_dict'):
             DataDict(data_dict_file='data_dict.csv', data_dict=pd.DataFrame())
