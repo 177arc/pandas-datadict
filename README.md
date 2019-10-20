@@ -117,7 +117,7 @@ data_df = pd.DataFrame.from_dict(data, orient='index', columns=['Name 1', 'Name 
 df = dd.remap(data_df, 'data_set_1')
 
 # Display the data frame with formatted values and descriptions
-dd.display(df)
+dd.display(df, excel_file='data.xlsx')
 ```
 ![alt text](https://raw.githubusercontent.com/177arc/pandas-datadict/master/datadict_jupyter_example.png "Data dictionary Jupyter example output")
 
