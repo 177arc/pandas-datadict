@@ -15,7 +15,7 @@ def build():
 
 def check():
     log.info('Checking package ...')
-    print(shell('twine check dist/*', capture=True, silent=True, check=False).stdout)
+    print(shell('twine check dist/*', capture=True, silent=True).stdout)
 
 def doc():
     log.info('Generating documentation ...')

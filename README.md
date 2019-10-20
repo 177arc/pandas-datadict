@@ -38,7 +38,8 @@ Install by navigating to the proper directory and running
 ## Usage
 
 ### Pure Python with data dictionary data frame
-To use a data dictionary data frame to remap colums of a given data frame:
+
+To use a data dictionary data frame to remap columns of a given data frame:
 ```python
 import pandas as pd
 from datetime import datetime
@@ -122,4 +123,4 @@ dd.display(df)
 
 ## Documentation
 
-For the code documentation, please visit the documention [Github Pages](https://177arc.github.io/pandas-datadict/docs/datadict/).
+For the code documentation, please visit the documentation [Github Pages](https://177arc.github.io/pandas-datadict/docs/datadict/).

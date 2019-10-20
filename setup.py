@@ -5,7 +5,7 @@ from setuptools import setup
 cwd = pathlib.Path(__file__).parent
 
 # The text of the README file
-readme = (cwd / 'README.md').read_text()
+readme = (cwd / 'pipy.md').read_text()
 
 # This call to setup() does all the work
 setup(name='pandas-datadict',
@@ -24,7 +24,5 @@ setup(name='pandas-datadict',
         ],
         packages=['datadict', 'datadict.jupyter'],
         include_package_data=True,
-        install_requires=['pandas'],
-        script_name='setup.py',
-        script_args=['sdist', 'bdist_wheel']
+        install_requires=['pandas']
 )
