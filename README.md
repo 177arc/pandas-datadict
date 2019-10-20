@@ -1,7 +1,6 @@
 # Data Dictionary for Pandas
 
-The `DataDict` class in this package provides functionality for mapping the columns of different pandas data frames into a consistent namespace,
-ensuring the columns to comply with the data type specified in the data dictionary and describing the data.
+The `DataDict` class in this package provides functionality for mapping the columns of different pandas data frames into a consistent namespace, ensuring the columns to comply with the data type specified in the data dictionary, describing the data and formatting it.
 
 The data dictionary consists at least of the following columns:
 * `Data Set`: Used when mapping in combination with `Field` to rename to the column to `Name`.
@@ -31,27 +30,96 @@ Alternatively, you could install directly from Github:
 
 ### From source
 
-Download the source code by cloning the repository or by pressing [Download ZIP](https://github.com/177arc/pandas-datadict/archive/master.zip) on this page.
+Download the source code by cloning the repository or by pressing ['Download ZIP'](https://github.com/177arc/pandas-datadict/archive/master.zip) on this page.
 Install by navigating to the proper directory and running
 
     python setup.py install
 
 ## Usage
 
-### Just Python
-
-To use a data dictionary file, such as ([data_dict.csv](https://github.com/177arc/pandas-datadict/blob/master/tests/data_dict.csv), to remap the columns of a data frame:
+### Pure Python with data dictionary data frame
+To use a data dictionary data frame to remap colums of a given data frame:
 ```python
 import pandas as pd
+from datetime import datetime
 from datadict import DataDict
 
+# Create data dictionary from data frame
+dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
+       data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', '{:s}'],
+             1: ['data_set_1', 'field_2', 'Name 2', 'Description 2', 'int', '{:d}'],
+             2: ['data_set_1', 'field_3', 'Name 3', 'Description 3', 'bool', '{:}'],
+             3: ['data_set_1', 'field_4', 'Name 4', 'Description 4', 'float', '£{:.1f}m'],
+             4: ['data_set_1', 'field_5', 'Name 5', 'Description 5', 'datetime64', '{:%B %d, %Y}']},
+       columns=['Data Set', 'Field', 'Name', 'Description', 'Type', 'Format']))
+
+# Create example data frame.
+data = {0: ['value 1', 1, True, 1.1, datetime(2019, 1, 1)],
+        1: ['value 2', 2, False, 1.2, datetime(2019, 1, 2)],
+        2: ['value 3', 3, None, None, None]}
+data_df = pd.DataFrame.from_dict(data, orient='index', columns=['Name 1', 'Name 2', 'Name 3', 'Name 4', 'Name 5'])
+
+# Remap the columns of the data frame using the data dictionary
+df = dd.remap(data_df, 'data_set_1')
+
+# Print the data frame with formatted values
+print(dd.format(df))
+```
+
+### Pure Python with data dictionary file
+
+To use a data dictionary file, such as [data_dict.csv](https://github.com/177arc/pandas-datadict/blob/master/tests/data_dict.csv), to remap the columns of a data frame:
+```python
+import pandas as pd
+from datetime import datetime
+from datadict import DataDict
+
+# Load data dictionary from file
 dd = DataDict(data_dict_file='data_dict.csv')
 
-data = {0: ['test 1', 1, True, 1.1, datetime(2019, 1, 1)],
-        1: ['test 2', 2, False, 1.2, datetime(2019, 1, 2)],
-        2: ['test 3', 3, np.nan, None, None]}
+# Create example data frame.
+data = {0: ['value 1', 1, True, 1.1, datetime(2019, 1, 1)],
+        1: ['value 2', 2, False, 1.2, datetime(2019, 1, 2)],
+        2: ['value 3', 3, None, None, None]}
 data_df = pd.DataFrame.from_dict(data, orient='index', columns=['Name 1', 'Name 2', 'Name 3', 'Name 4', 'Name 5'])
-print(dd.remap(data_df, 'data_set_1'))
+
+# Remap the columns of the data frame using the data dictionary
+df = dd.remap(data_df, 'data_set_1')
+
+# Print the data frame with formatted values
+print(dd.format(df))
 ```
 
 ### Jupyter Notebook
+When using the data dictionary within Jupyter notebooks, additional functionality for displaying a data frame is available when importing the `datadict.jupyter` package. For example, to display a data frame with its column descriptions:
+```python
+import pandas as pd
+from datetime import datetime
+from datadict.jupyter import DataDict # IMPORTANT: import from datadict.jupyter instead of datadict
+
+# Load data dictionary from file
+dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
+       data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', '{:s}'],
+             1: ['data_set_1', 'field_2', 'Name 2', 'Description 2', 'int', '{:d}'],
+             2: ['data_set_1', 'field_3', 'Name 3', 'Description 3', 'bool', '{:}'],
+             3: ['data_set_1', 'field_4', 'Name 4', 'Description 4', 'float', '£{:.1f}m'],
+             4: ['data_set_1', 'field_5', 'Name 5', 'Description 5', 'datetime64', '{:%B %d, %Y}']},
+       columns=['Data Set', 'Field', 'Name', 'Description', 'Type', 'Format']))
+
+# Create example data frame.
+data = {0: ['value 1', 1, True, 1.1, datetime(2019, 1, 1)],
+        1: ['value 2', 2, False, 1.2, datetime(2019, 1, 2)],
+        2: ['value 3', 3, None, None, None]}
+data_df = pd.DataFrame.from_dict(data, orient='index', columns=['Name 1', 'Name 2', 'Name 3', 'Name 4', 'Name 5'])
+
+# Remap the columns of the data frame using the data dictionary
+df = dd.remap(data_df, 'data_set_1')
+
+# Display the data frame with formatted values and descriptions
+dd.display(df)
+```
+![alt text](https://raw.githubusercontent.com/177arc/pandas-datadict/master/datadict_jupyter_example.png "Data dictionary Jupyter example output")
+
+## Documentation
+
+For the code documentation, please visit the documention [Github Pages](https://177arc.github.io/pandas-datadict/docs/datadict/).
