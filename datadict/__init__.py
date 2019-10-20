@@ -30,6 +30,7 @@ class DataDict:
 
     column_names = ['Data Set', 'Field', 'Name', 'Description', 'Type', 'Format']
     supported_types = ['float', 'float32', 'float64', 'int', 'int32', 'int64', 'object', 'str', 'bool', 'datetime64', 'timedelta', 'category']
+    meta = None
 
     def __aggr(self, series: pd.Series):
         funcs = self._data_dict[self._data_dict['Name'] == series.name]['Default Aggregation'].values
@@ -264,3 +265,12 @@ class DataDict:
                 df[col] = df[col].apply(value)
 
         return df
+
+DataDict.meta = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
+             data={0: ['data_dict', 'data_set', 'Data Set', 'Used when mapping in combination with Field to rename to the column to Name.', 'str', '{:s}'],
+                   1: ['data_dict', 'field', 'Field', 'Column name of the data frame to map to Name.', 'str', '{:s}'],
+                   2: ['data_dict', 'name', 'Name', 'Column name that is unique throughout the data dictionary.', 'str', '{:s}'],
+                   3: ['data_dict', 'description', 'Description', 'Description of the column name. This can be used to provide additional information when displaying the data frame.', 'str', '{:s}'],
+                   4: ['data_dict', 'type', 'Type', 'Type the column should be cast to.', 'str', '{:s}'],
+                   5: ['data_dict', 'format', 'Format', 'Format to use when values need to be converted to a string representation. The format string has to be a Python format string such as {:.0f}%', 'str', '{:s}']},
+             columns=['Data Set', 'Field', 'Name', 'Description', 'Type', 'Format']))

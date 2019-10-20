@@ -56,6 +56,7 @@ class DataDict:
 
     column_names = [&#39;Data Set&#39;, &#39;Field&#39;, &#39;Name&#39;, &#39;Description&#39;, &#39;Type&#39;, &#39;Format&#39;]
     supported_types = [&#39;float&#39;, &#39;float32&#39;, &#39;float64&#39;, &#39;int&#39;, &#39;int32&#39;, &#39;int64&#39;, &#39;object&#39;, &#39;str&#39;, &#39;bool&#39;, &#39;datetime64&#39;, &#39;timedelta&#39;, &#39;category&#39;]
+    meta = None
 
     def __aggr(self, series: pd.Series):
         funcs = self._data_dict[self._data_dict[&#39;Name&#39;] == series.name][&#39;Default Aggregation&#39;].values
@@ -289,7 +290,16 @@ class DataDict:
             if col in df.columns:
                 df[col] = df[col].apply(value)
 
-        return df</code></pre>
+        return df
+
+DataDict.meta = DataDict(data_dict=pd.DataFrame.from_dict(orient=&#39;index&#39;,
+             data={0: [&#39;data_dict&#39;, &#39;data_set&#39;, &#39;Data Set&#39;, &#39;Used when mapping in combination with Field to rename to the column to Name.&#39;, &#39;str&#39;, &#39;{:s}&#39;],
+                   1: [&#39;data_dict&#39;, &#39;field&#39;, &#39;Field&#39;, &#39;Column name of the data frame to map to Name.&#39;, &#39;str&#39;, &#39;{:s}&#39;],
+                   2: [&#39;data_dict&#39;, &#39;name&#39;, &#39;Name&#39;, &#39;Column name that is unique throughout the data dictionary.&#39;, &#39;str&#39;, &#39;{:s}&#39;],
+                   3: [&#39;data_dict&#39;, &#39;description&#39;, &#39;Description&#39;, &#39;Description of the column name. This can be used to provide additional information when displaying the data frame.&#39;, &#39;str&#39;, &#39;{:s}&#39;],
+                   4: [&#39;data_dict&#39;, &#39;type&#39;, &#39;Type&#39;, &#39;Type the column should be cast to.&#39;, &#39;str&#39;, &#39;{:s}&#39;],
+                   5: [&#39;data_dict&#39;, &#39;format&#39;, &#39;Format&#39;, &#39;Format to use when values need to be converted to a string representation. The format string has to be a Python format string such as {:.0f}%&#39;, &#39;str&#39;, &#39;{:s}&#39;]},
+             columns=[&#39;Data Set&#39;, &#39;Field&#39;, &#39;Name&#39;, &#39;Description&#39;, &#39;Type&#39;, &#39;Format&#39;]))</code></pre>
 </details>
 </section>
 <section>
@@ -362,6 +372,7 @@ ensuring the columns to comply with the data type specified in the data dictiona
 
     column_names = [&#39;Data Set&#39;, &#39;Field&#39;, &#39;Name&#39;, &#39;Description&#39;, &#39;Type&#39;, &#39;Format&#39;]
     supported_types = [&#39;float&#39;, &#39;float32&#39;, &#39;float64&#39;, &#39;int&#39;, &#39;int32&#39;, &#39;int64&#39;, &#39;object&#39;, &#39;str&#39;, &#39;bool&#39;, &#39;datetime64&#39;, &#39;timedelta&#39;, &#39;category&#39;]
+    meta = None
 
     def __aggr(self, series: pd.Series):
         funcs = self._data_dict[self._data_dict[&#39;Name&#39;] == series.name][&#39;Default Aggregation&#39;].values
@@ -603,6 +614,19 @@ ensuring the columns to comply with the data type specified in the data dictiona
 <dd>
 <section class="desc"><p>list() -&gt; new empty list
 list(iterable) -&gt; new list initialized from iterable's items</p></section>
+</dd>
+<dt id="datadict.DataDict.meta"><code class="name">var <span class="ident">meta</span></code></dt>
+<dd>
+<section class="desc"><p>This class provides functionality for mapping the columns of different data frames into a consistent namespace,
+ensuring the columns to comply with the data type specified in the data dictionary and describing the data.</p>
+<p>The data dictionary consists at least of the following columns:
+* <code>Data Set</code>: Used when mapping in combination with <code>Field</code> to rename to the column to <code>Name</code>.
+* <code>Field</code>: Column name of the data frame to map to <code>Name</code>.
+* <code>Name</code>: Column name that is unique throughout the data dictionary.
+* <code>Description</code>: Description of the column name. This can be used to provide additional information when displaying the data frame.
+* <code>Type</code>: Type the column should be cast to.
+* <code>Format</code>: Format to use when values need to be converted to a string representation. The format string has to be a Python format string such as <code>{:.0f}%</code></p>
+<p>The data dictionary can either be loaded from a CSV file or from a data frame.</p></section>
 </dd>
 <dt id="datadict.DataDict.supported_types"><code class="name">var <span class="ident">supported_types</span></code></dt>
 <dd>
@@ -911,6 +935,7 @@ that have entries with empty <code>Data Set</code> are used.</dd>
 <li><code><a title="datadict.DataDict.data_dict" href="#datadict.DataDict.data_dict">data_dict</a></code></li>
 <li><code><a title="datadict.DataDict.format" href="#datadict.DataDict.format">format</a></code></li>
 <li><code><a title="datadict.DataDict.formats" href="#datadict.DataDict.formats">formats</a></code></li>
+<li><code><a title="datadict.DataDict.meta" href="#datadict.DataDict.meta">meta</a></code></li>
 <li><code><a title="datadict.DataDict.remap" href="#datadict.DataDict.remap">remap</a></code></li>
 <li><code><a title="datadict.DataDict.reorder" href="#datadict.DataDict.reorder">reorder</a></code></li>
 <li><code><a title="datadict.DataDict.supported_types" href="#datadict.DataDict.supported_types">supported_types</a></code></li>

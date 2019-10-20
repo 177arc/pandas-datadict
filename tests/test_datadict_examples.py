@@ -1,5 +1,5 @@
 import unittest
-
+import os
 import pandas as pd
 from datetime import datetime
 from datadict import DataDict
@@ -8,7 +8,8 @@ class TestDataDictExamples(unittest.TestCase):
 
     def test_example_load_file_remap(self):
         # Load data dictionary from file
-        dd = DataDict(data_dict_file='data_dict.csv')
+        data_dict_file = os.path.join(os.path.dirname(__file__), 'data_dict.csv')
+        dd = DataDict(data_dict_file=data_dict_file)
 
         # Create example data frame.
         data = {0: ['value 1', 1, True, 1.1, datetime(2019, 1, 1)],

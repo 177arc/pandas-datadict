@@ -1,4 +1,5 @@
 import unittest
+import os
 from datadict import DataDict
 import logging as log
 import pandas as pd
@@ -30,7 +31,8 @@ class TestDataDict(unittest.TestCase):
         expected_df = expected_df.replace('', np.nan)
         expected_dd = DataDict(data_dict=expected_df)
 
-        actual_dd = DataDict(data_dict_file='data_dict.csv')
+        data_dict_file = os.path.join(os.path.dirname(__file__), 'data_dict.csv')
+        actual_dd = DataDict(data_dict_file=data_dict_file)
 
         assert_frame_equal(expected_dd.data_dict, actual_dd.data_dict)
 
@@ -204,6 +206,10 @@ class TestDataDict(unittest.TestCase):
         actual_df = dd.format(actual_df)
         self.maxDiff = None
         assert_frame_equal(expected_df, actual_df)
+
+    def test_meta(self):
+        # Tests that the meta data dictionary is a valid data dictionary.
+        DataDict.validate(DataDict.meta.data_dict)
 
     def test_missing_column(self):
         with self.assertRaisesRegex(ValueError, f'{DataDict.column_names}'):

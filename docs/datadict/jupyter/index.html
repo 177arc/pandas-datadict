@@ -71,7 +71,20 @@ def _display_footer(self, df: pd.DataFrame, df_output: pd.DataFrame, title: str 
     return widgets.HBox(footer_elements)
 
 
-def display(self, df: pd.DataFrame, head: int = None, stats: bool = False, title: str = None, excel_file: str = None):
+def display(self, df: pd.DataFrame, head: int = 10, stats: bool = False, title: str = None, excel_file: str = None):
+    &#34;&#34;&#34;
+    Displays the given data frame in a Jupyter notebook. It formats the values based on the format specification in the data dictionary.
+
+    Args:
+        df: The data frame to display.
+        head: The number of row to display from the top.
+        stats: Whether to add the total and the average to the top of the data frame.
+        title: The title to show at the top.
+        excel_file: The name of the excel file that is accessible at the bottom of the page. If no excel file is specified, the link will not be available.
+
+    Returns:
+        Composite Jupyter widget with data frame.
+    &#34;&#34;&#34;
     df_output = df
     if stats:
         df_output = self.add_stats(df_output)
@@ -100,15 +113,43 @@ DataDict.display = display</code></pre>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="datadict.jupyter.display"><code class="name flex">
-<span>def <span class="ident">display</span></span>(<span>self, df, head=None, stats=False, title=None, excel_file=None)</span>
+<span>def <span class="ident">display</span></span>(<span>self, df, head=10, stats=False, title=None, excel_file=None)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Displays the given data frame in a Jupyter notebook. It formats the values based on the format specification in the data dictionary.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong></dt>
+<dd>The data frame to display.</dd>
+<dt><strong><code>head</code></strong></dt>
+<dd>The number of row to display from the top.</dd>
+<dt><strong><code>stats</code></strong></dt>
+<dd>Whether to add the total and the average to the top of the data frame.</dd>
+<dt><strong><code>title</code></strong></dt>
+<dd>The title to show at the top.</dd>
+<dt><strong><code>excel_file</code></strong></dt>
+<dd>The name of the excel file that is accessible at the bottom of the page. If no excel file is specified, the link will not be available.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Composite Jupyter widget with data frame.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def display(self, df: pd.DataFrame, head: int = None, stats: bool = False, title: str = None, excel_file: str = None):
+<pre><code class="python">def display(self, df: pd.DataFrame, head: int = 10, stats: bool = False, title: str = None, excel_file: str = None):
+    &#34;&#34;&#34;
+    Displays the given data frame in a Jupyter notebook. It formats the values based on the format specification in the data dictionary.
+
+    Args:
+        df: The data frame to display.
+        head: The number of row to display from the top.
+        stats: Whether to add the total and the average to the top of the data frame.
+        title: The title to show at the top.
+        excel_file: The name of the excel file that is accessible at the bottom of the page. If no excel file is specified, the link will not be available.
+
+    Returns:
+        Composite Jupyter widget with data frame.
+    &#34;&#34;&#34;
     df_output = df
     if stats:
         df_output = self.add_stats(df_output)

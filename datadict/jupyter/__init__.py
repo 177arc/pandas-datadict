@@ -45,7 +45,20 @@ def _display_footer(self, df: pd.DataFrame, df_output: pd.DataFrame, title: str 
     return widgets.HBox(footer_elements)
 
 
-def display(self, df: pd.DataFrame, head: int = None, stats: bool = False, title: str = None, excel_file: str = None):
+def display(self, df: pd.DataFrame, head: int = 10, stats: bool = False, title: str = None, excel_file: str = None):
+    """
+    Displays the given data frame in a Jupyter notebook. It formats the values based on the format specification in the data dictionary.
+
+    Args:
+        df: The data frame to display.
+        head: The number of row to display from the top.
+        stats: Whether to add the total and the average to the top of the data frame.
+        title: The title to show at the top.
+        excel_file: The name of the excel file that is accessible at the bottom of the page. If no excel file is specified, the link will not be available.
+
+    Returns:
+        Composite Jupyter widget with data frame.
+    """
     df_output = df
     if stats:
         df_output = self.add_stats(df_output)
