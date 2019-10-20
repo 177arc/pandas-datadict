@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.1" />
+<title>datadict API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>datadict</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import pandas as pd
+import numpy as np
+import os
+from pandas.api.types import is_numeric_dtype
+from os import path
+from typing import Dict
+
+class DataDict:
+    &#34;&#34;&#34;
+    This class provides functionality for mapping the columns of different data frames into a consistent namespace,
+    ensuring the columns to comply with the data type specified in the data dictionary and describing the data.
+
+    The data dictionary consists at least of the following columns:
+    * `Data Set`: Used when mapping in combination with `Field` to rename to the column to `Name`.
+    * `Field`: Column name of the data frame to map to `Name`.
+    * `Name`: Column name that is unique throughout the data dictionary.
+    * `Description`: Description of the column name. This can be used to provide additional information when displaying the data frame.
+    * `Type`: Type the column should be cast to.
+    * `Format`: Format to use when values need to be converted to a string representation. The format string has to be a Python format string such as `{:.0f}%`
+
+    The data dictionary can either be loaded from a CSV file or from a data frame.
+    &#34;&#34;&#34;
+    _data_dict_file: str
+    _data_dict_updated: float = None
+    _data_dict: pd.DataFrame
+    _formats: dict
+    _names: list
+
+    auto_reload: bool
+
+    column_names = [&#39;Data Set&#39;, &#39;Field&#39;, &#39;Name&#39;, &#39;Description&#39;, &#39;Type&#39;, &#39;Format&#39;]
+    supported_types = [&#39;float&#39;, &#39;float32&#39;, &#39;float64&#39;, &#39;int&#39;, &#39;int32&#39;, &#39;int64&#39;, &#39;object&#39;, &#39;str&#39;, &#39;bool&#39;, &#39;datetime64&#39;, &#39;timedelta&#39;, &#39;category&#39;]
+
+    def __aggr(self, series: pd.Series):
+        funcs = self._data_dict[self._data_dict[&#39;Name&#39;] == series.name][&#39;Default Aggregation&#39;].values
+        try:
+            return eval(&#39;series.&#39; + funcs[0]) if len(funcs) == 1 and not funcs[0].isspace() else None
+        except:
+            return None
+
+    @property
+    def data_dict(self) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;
+        Data dictionary as a data frame.
+        &#34;&#34;&#34;
+        return self._data_dict
+
+    @property
+    def formats(self) -&gt; Dict[str, str]:
+        &#34;&#34;&#34;
+        Dictionary that maps the columns to names to their format strings.
+        &#34;&#34;&#34;
+        return self._formats
+
+    def __init__(self, data_dict_file: str = None, auto_reload: bool = True, data_dict: pd.DataFrame = None):
+        &#34;&#34;&#34;
+        Creates the data dictionary and validates it. It can either be initialised from a CSV file or a data frame.
+
+        Args:
+            data_dict_file: The data dictionary file in CSV format to use to initialise the data dictionary.
+            auto_reload: Whether the data dictionary should automatically check for changes in the data dictionary file.
+            data_dict: The data dictionary as a data frame to use to initialise the data dictionary instead of the data dictionary file.
+        &#34;&#34;&#34;
+        if not data_dict_file is None and not data_dict is None:
+            raise ValueError(&#39;Parameters data_dict_file and data_dict can\&#39;t be assigned at the same time.&#39;)
+
+        self._data_dict_file = data_dict_file
+        self.auto_reload = auto_reload
+        self.__set_data_dict(data_dict)
+
+        self.__load()
+
+    def __load(self) -&gt; None:
+        &#34;&#34;&#34;
+        Loads the data dictionary from the CSV file specified during initialisation and validates it.
+        &#34;&#34;&#34;
+        if self._data_dict_file is None:
+            return
+
+        if not path.exists(self._data_dict_file):
+            raise ValueError(f&#39;The data dictionary file {self._data_dict_file} does not exist.&#39;)
+
+        if self._data_dict_updated is not None and os.path.getmtime(self._data_dict_file) == self._data_dict_updated:
+            return
+
+        data_dict = pd.read_csv(self._data_dict_file)
+        self._data_dict_updated = os.path.getmtime(self._data_dict_file)
+
+        self.__set_data_dict(data_dict)
+
+    def __set_data_dict(self, data_dict: pd.DataFrame) -&gt; None:
+        &#34;&#34;&#34;
+        Sets a new data dictionary frame validates it.
+
+        Args:
+            data_dict: Specifies the data dictionary.
+        &#34;&#34;&#34;
+        DataDict.validate(data_dict)
+
+        self._data_dict = data_dict
+
+        if not data_dict is None:
+            formats = self._data_dict[[&#39;Name&#39;, &#39;Format&#39;]].dropna(subset=[&#39;Format&#39;])
+            self._formats = pd.Series(formats[&#39;Format&#39;].values, index=formats[&#39;Name&#39;]).to_dict()
+            self._names = list(self._data_dict[&#39;Name&#39;].values)
+
+    @staticmethod
+    def validate(data_dict: pd.DataFrame) -&gt; None:
+        &#34;&#34;&#34;
+        Validates the given data dictionary and raises a `ValueError` if the validation fails.
+
+        Args:
+            data_dict: The data dictionary to validate.
+
+        Returns:
+
+        Raises:
+            ValueError: If the given data dictionary is not valid.
+
+        &#34;&#34;&#34;
+        if data_dict is None:
+            return
+
+        data_dict = data_dict.copy()
+
+        # Check that all expected columns exist.
+        if not set(data_dict.columns) &gt;= set(DataDict.column_names):
+            raise ValueError(f&#39;The data dictionary must at least include the following column names: {DataDict.column_names}&#39;)
+
+        # Check that all types are supported Python types.
+        if not set(data_dict[&#39;Type&#39;].values) &lt;= set(DataDict.supported_types):
+            raise ValueError(
+                f&#39;The Type column of the data dictionary contains the following unsupported types {set(data_dict[&#34;Type&#34;].values) - set(DataDict.supported_types)}. Only the following types are supported: {DataDict.supported_types}&#39;)
+
+        # Check that names are unique.
+        if any(data_dict[&#39;Name&#39;].duplicated()):
+            raise ValueError(f&#39;The Name column contains the following duplicates: {data_dict[&#34;Name&#34;][data_dict[&#34;Name&#34;].duplicated()].values}. The names must be unique.&#39;)
+
+        # Check that dataset and field combination is unique.
+        data_dict = data_dict.replace(&#39;&#39;, np.nan)
+        data_dict[&#39;Field ID&#39;] = data_dict[&#39;Data Set&#39;] + &#39;.&#39; + data_dict[&#39;Field&#39;]
+        if any(data_dict[&#39;Field ID&#39;][data_dict[&#39;Field ID&#39;].isnull() == False].duplicated()):
+            raise ValueError(f&#39;The combination of columns Data Set and Field contains the following duplicates: {data_dict[&#34;Field ID&#34;][data_dict[&#34;Field ID&#34;].duplicated()].values}. The combination must be unique.&#39;)
+
+    def __str_to_bool(self, value: str) -&gt; object:
+        &#34;&#34;&#34;
+        Converts the given string to a bool if the argument is a string otherwise it returns the value untouched. `yes`, `true`, `1` are considered `True`, the rest is considered `False`.
+
+        Args:
+            value: The value to convert to a bool.
+
+        Returns:
+            The converted bool if the value is a string. Otherwise the value passed in the argument.
+        &#34;&#34;&#34;
+        if pd.isnull(value):
+            return None
+
+        if not isinstance(value, str):
+            return value
+
+        return value.lower() in [&#39;yes&#39;, &#39;true&#39;, &#39;1&#39;]
+
+    def remap(self, df: pd.DataFrame, data_set: str = None) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;
+        Renames the columns in the given data frame based on based on the `Data Set` and `Field` attributes in the data dictionary to `Name`
+        if such a mapping found and converts the columns data to `Type`. It also reorders the columns based on the order of the data dictionary entries.
+
+        Args:
+            df: The data frame to remap.
+            data_set: The data set to use. If this value matches a value in the `Data Set` column of the data dictionary, then the corresponding names in the `Field`
+                column are used to rename the columns of the given data frame to the `Name` column name. If `dataset` is not specified, the values in `Field` column
+                that have entries with empty `Data Set` are used.
+
+        Returns:
+            The remapped data frame.
+        &#34;&#34;&#34;
+        if self.auto_reload:
+            self.__load()
+
+        if df is None:
+            raise ValueError(&#39;Parameter df not provided..&#39;)
+
+        if data_set is None:
+            data_set = &#39;&#39;
+
+        dd = self._data_dict[self._data_dict[&#39;Data Set&#39;] == data_set].set_index(&#39;Field&#39;)
+
+        # Ensure that nan is represented as None so that column type conversion does not result in object types if nan is present.
+        df = df.replace(&#39;&#39;, np.nan)
+
+        types_map = dd[&#39;Type&#39;].to_dict()
+        types_map = {col: type for (col, type) in types_map.items() if col in df.columns}  # Remove mapping for columns that are not present in data frame,
+
+        # Treat with bool separately &#39;cause all non-empty strings are converted to True.
+        # Map values of non-bool columns using data type.
+        no_bool_types_map = {col: type for (col, type) in types_map.items() if type != &#39;bool&#39;}
+        df = df.astype(no_bool_types_map, errors=&#39;ignore&#39;)
+
+        # Map values of bool columns using data type.
+        bool_cols = [col for (col, type) in types_map.items() if type == &#39;bool&#39;]
+        df[bool_cols] = df[bool_cols].apply(lambda col: col.map(lambda val: self.__str_to_bool(val)))
+
+        columns_map = dd[&#39;Name&#39;].to_dict()
+        df = df.rename(columns=columns_map)
+        df = self.reorder(df)
+        return df
+
+    def reorder(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;
+        Reorders the given data frame based on the order of the matching entries in the data dictionary.
+
+        Args:
+            df: The data frame whose columns need to be reordered.
+
+        Returns:
+            The reordered data frame.
+        &#34;&#34;&#34;
+        if self.auto_reload:
+            self.__load()
+
+        return df[[x for x in self._names if x in list(df.columns.values)] + [x for x in list(df.columns.values) if
+                                                                              x not in self._names]]
+
+    def add_stats(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;
+        Adds the `Total` and `Average` of the column values as two rows at the top of the data frame.
+
+        Args:
+            df: The data frame to summarise.
+
+        Returns:
+            The data frame with the `Total` and `Average` at the top.
+        &#34;&#34;&#34;
+        if df is None: raise ValueError(&#39;Parameter df is mandatory&#39;)
+        num_agg_map = {col: [&#39;sum&#39;, &#39;mean&#39;] for col in df if is_numeric_dtype(df[col])}
+        func_map = {&#39;sum&#39;: &#39;Total&#39;, &#39;mean&#39;: &#39;Average&#39;}
+        aggr_row = df.agg(num_agg_map).rename(func_map)
+        df = pd.concat([df.iloc[:0], aggr_row, df], sort=False)
+
+        return df
+
+    def format(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;
+        Formats the data frame based on the `Format` attribute in the data dictionary.
+
+        Args:
+            df: The data frame to format.
+
+        Returns:
+            The formatted data frame.
+        &#34;&#34;&#34;
+        if df is None: raise ValueError(&#39;Parameter df is mandatory&#39;)
+
+        # Necessary to define separate function instead of using lambda directly (see https://stackoverflow.com/questions/36805071/dictionary-comprehension-with-lambda-functions-gives-wrong-results)
+        def make_func(f):
+            return lambda x: f.format(x) if not pd.isnull(x) else &#39;-&#39; \
+                                                                  &#39;&#39;
+
+        formats = {col: make_func(f) for (col, f) in self._formats.items()}
+
+        df = df.copy()
+        for col, value in formats.items():
+            if col in df.columns:
+                df[col] = df[col].apply(value)
+
+        return df</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="datadict.jupyter" href="jupyter/index.html">datadict.jupyter</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="datadict.DataDict"><code class="flex name class">
+<span>class <span class="ident">DataDict</span></span>
+<span>(</span><span>data_dict_file=None, auto_reload=True, data_dict=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>This class provides functionality for mapping the columns of different data frames into a consistent namespace,
+ensuring the columns to comply with the data type specified in the data dictionary and describing the data.</p>
+<p>The data dictionary consists at least of the following columns:
+* <code>Data Set</code>: Used when mapping in combination with <code>Field</code> to rename to the column to <code>Name</code>.
+* <code>Field</code>: Column name of the data frame to map to <code>Name</code>.
+* <code>Name</code>: Column name that is unique throughout the data dictionary.
+* <code>Description</code>: Description of the column name. This can be used to provide additional information when displaying the data frame.
+* <code>Type</code>: Type the column should be cast to.
+* <code>Format</code>: Format to use when values need to be converted to a string representation. The format string has to be a Python format string such as <code>{:.0f}%</code></p>
+<p>The data dictionary can either be loaded from a CSV file or from a data frame.</p>
+<p>Creates the data dictionary and validates it. It can either be initialised from a CSV file or a data frame.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data_dict_file</code></strong></dt>
+<dd>The data dictionary file in CSV format to use to initialise the data dictionary.</dd>
+<dt><strong><code>auto_reload</code></strong></dt>
+<dd>Whether the data dictionary should automatically check for changes in the data dictionary file.</dd>
+<dt><strong><code>data_dict</code></strong></dt>
+<dd>The data dictionary as a data frame to use to initialise the data dictionary instead of the data dictionary file.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DataDict:
+    &#34;&#34;&#34;
+    This class provides functionality for mapping the columns of different data frames into a consistent namespace,
+    ensuring the columns to comply with the data type specified in the data dictionary and describing the data.
+
+    The data dictionary consists at least of the following columns:
+    * `Data Set`: Used when mapping in combination with `Field` to rename to the column to `Name`.
+    * `Field`: Column name of the data frame to map to `Name`.
+    * `Name`: Column name that is unique throughout the data dictionary.
+    * `Description`: Description of the column name. This can be used to provide additional information when displaying the data frame.
+    * `Type`: Type the column should be cast to.
+    * `Format`: Format to use when values need to be converted to a string representation. The format string has to be a Python format string such as `{:.0f}%`
+
+    The data dictionary can either be loaded from a CSV file or from a data frame.
+    &#34;&#34;&#34;
+    _data_dict_file: str
+    _data_dict_updated: float = None
+    _data_dict: pd.DataFrame
+    _formats: dict
+    _names: list
+
+    auto_reload: bool
+
+    column_names = [&#39;Data Set&#39;, &#39;Field&#39;, &#39;Name&#39;, &#39;Description&#39;, &#39;Type&#39;, &#39;Format&#39;]
+    supported_types = [&#39;float&#39;, &#39;float32&#39;, &#39;float64&#39;, &#39;int&#39;, &#39;int32&#39;, &#39;int64&#39;, &#39;object&#39;, &#39;str&#39;, &#39;bool&#39;, &#39;datetime64&#39;, &#39;timedelta&#39;, &#39;category&#39;]
+
+    def __aggr(self, series: pd.Series):
+        funcs = self._data_dict[self._data_dict[&#39;Name&#39;] == series.name][&#39;Default Aggregation&#39;].values
+        try:
+            return eval(&#39;series.&#39; + funcs[0]) if len(funcs) == 1 and not funcs[0].isspace() else None
+        except:
+            return None
+
+    @property
+    def data_dict(self) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;
+        Data dictionary as a data frame.
+        &#34;&#34;&#34;
+        return self._data_dict
+
+    @property
+    def formats(self) -&gt; Dict[str, str]:
+        &#34;&#34;&#34;
+        Dictionary that maps the columns to names to their format strings.
+        &#34;&#34;&#34;
+        return self._formats
+
+    def __init__(self, data_dict_file: str = None, auto_reload: bool = True, data_dict: pd.DataFrame = None):
+        &#34;&#34;&#34;
+        Creates the data dictionary and validates it. It can either be initialised from a CSV file or a data frame.
+
+        Args:
+            data_dict_file: The data dictionary file in CSV format to use to initialise the data dictionary.
+            auto_reload: Whether the data dictionary should automatically check for changes in the data dictionary file.
+            data_dict: The data dictionary as a data frame to use to initialise the data dictionary instead of the data dictionary file.
+        &#34;&#34;&#34;
+        if not data_dict_file is None and not data_dict is None:
+            raise ValueError(&#39;Parameters data_dict_file and data_dict can\&#39;t be assigned at the same time.&#39;)
+
+        self._data_dict_file = data_dict_file
+        self.auto_reload = auto_reload
+        self.__set_data_dict(data_dict)
+
+        self.__load()
+
+    def __load(self) -&gt; None:
+        &#34;&#34;&#34;
+        Loads the data dictionary from the CSV file specified during initialisation and validates it.
+        &#34;&#34;&#34;
+        if self._data_dict_file is None:
+            return
+
+        if not path.exists(self._data_dict_file):
+            raise ValueError(f&#39;The data dictionary file {self._data_dict_file} does not exist.&#39;)
+
+        if self._data_dict_updated is not None and os.path.getmtime(self._data_dict_file) == self._data_dict_updated:
+            return
+
+        data_dict = pd.read_csv(self._data_dict_file)
+        self._data_dict_updated = os.path.getmtime(self._data_dict_file)
+
+        self.__set_data_dict(data_dict)
+
+    def __set_data_dict(self, data_dict: pd.DataFrame) -&gt; None:
+        &#34;&#34;&#34;
+        Sets a new data dictionary frame validates it.
+
+        Args:
+            data_dict: Specifies the data dictionary.
+        &#34;&#34;&#34;
+        DataDict.validate(data_dict)
+
+        self._data_dict = data_dict
+
+        if not data_dict is None:
+            formats = self._data_dict[[&#39;Name&#39;, &#39;Format&#39;]].dropna(subset=[&#39;Format&#39;])
+            self._formats = pd.Series(formats[&#39;Format&#39;].values, index=formats[&#39;Name&#39;]).to_dict()
+            self._names = list(self._data_dict[&#39;Name&#39;].values)
+
+    @staticmethod
+    def validate(data_dict: pd.DataFrame) -&gt; None:
+        &#34;&#34;&#34;
+        Validates the given data dictionary and raises a `ValueError` if the validation fails.
+
+        Args:
+            data_dict: The data dictionary to validate.
+
+        Returns:
+
+        Raises:
+            ValueError: If the given data dictionary is not valid.
+
+        &#34;&#34;&#34;
+        if data_dict is None:
+            return
+
+        data_dict = data_dict.copy()
+
+        # Check that all expected columns exist.
+        if not set(data_dict.columns) &gt;= set(DataDict.column_names):
+            raise ValueError(f&#39;The data dictionary must at least include the following column names: {DataDict.column_names}&#39;)
+
+        # Check that all types are supported Python types.
+        if not set(data_dict[&#39;Type&#39;].values) &lt;= set(DataDict.supported_types):
+            raise ValueError(
+                f&#39;The Type column of the data dictionary contains the following unsupported types {set(data_dict[&#34;Type&#34;].values) - set(DataDict.supported_types)}. Only the following types are supported: {DataDict.supported_types}&#39;)
+
+        # Check that names are unique.
+        if any(data_dict[&#39;Name&#39;].duplicated()):
+            raise ValueError(f&#39;The Name column contains the following duplicates: {data_dict[&#34;Name&#34;][data_dict[&#34;Name&#34;].duplicated()].values}. The names must be unique.&#39;)
+
+        # Check that dataset and field combination is unique.
+        data_dict = data_dict.replace(&#39;&#39;, np.nan)
+        data_dict[&#39;Field ID&#39;] = data_dict[&#39;Data Set&#39;] + &#39;.&#39; + data_dict[&#39;Field&#39;]
+        if any(data_dict[&#39;Field ID&#39;][data_dict[&#39;Field ID&#39;].isnull() == False].duplicated()):
+            raise ValueError(f&#39;The combination of columns Data Set and Field contains the following duplicates: {data_dict[&#34;Field ID&#34;][data_dict[&#34;Field ID&#34;].duplicated()].values}. The combination must be unique.&#39;)
+
+    def __str_to_bool(self, value: str) -&gt; object:
+        &#34;&#34;&#34;
+        Converts the given string to a bool if the argument is a string otherwise it returns the value untouched. `yes`, `true`, `1` are considered `True`, the rest is considered `False`.
+
+        Args:
+            value: The value to convert to a bool.
+
+        Returns:
+            The converted bool if the value is a string. Otherwise the value passed in the argument.
+        &#34;&#34;&#34;
+        if pd.isnull(value):
+            return None
+
+        if not isinstance(value, str):
+            return value
+
+        return value.lower() in [&#39;yes&#39;, &#39;true&#39;, &#39;1&#39;]
+
+    def remap(self, df: pd.DataFrame, data_set: str = None) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;
+        Renames the columns in the given data frame based on based on the `Data Set` and `Field` attributes in the data dictionary to `Name`
+        if such a mapping found and converts the columns data to `Type`. It also reorders the columns based on the order of the data dictionary entries.
+
+        Args:
+            df: The data frame to remap.
+            data_set: The data set to use. If this value matches a value in the `Data Set` column of the data dictionary, then the corresponding names in the `Field`
+                column are used to rename the columns of the given data frame to the `Name` column name. If `dataset` is not specified, the values in `Field` column
+                that have entries with empty `Data Set` are used.
+
+        Returns:
+            The remapped data frame.
+        &#34;&#34;&#34;
+        if self.auto_reload:
+            self.__load()
+
+        if df is None:
+            raise ValueError(&#39;Parameter df not provided..&#39;)
+
+        if data_set is None:
+            data_set = &#39;&#39;
+
+        dd = self._data_dict[self._data_dict[&#39;Data Set&#39;] == data_set].set_index(&#39;Field&#39;)
+
+        # Ensure that nan is represented as None so that column type conversion does not result in object types if nan is present.
+        df = df.replace(&#39;&#39;, np.nan)
+
+        types_map = dd[&#39;Type&#39;].to_dict()
+        types_map = {col: type for (col, type) in types_map.items() if col in df.columns}  # Remove mapping for columns that are not present in data frame,
+
+        # Treat with bool separately &#39;cause all non-empty strings are converted to True.
+        # Map values of non-bool columns using data type.
+        no_bool_types_map = {col: type for (col, type) in types_map.items() if type != &#39;bool&#39;}
+        df = df.astype(no_bool_types_map, errors=&#39;ignore&#39;)
+
+        # Map values of bool columns using data type.
+        bool_cols = [col for (col, type) in types_map.items() if type == &#39;bool&#39;]
+        df[bool_cols] = df[bool_cols].apply(lambda col: col.map(lambda val: self.__str_to_bool(val)))
+
+        columns_map = dd[&#39;Name&#39;].to_dict()
+        df = df.rename(columns=columns_map)
+        df = self.reorder(df)
+        return df
+
+    def reorder(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;
+        Reorders the given data frame based on the order of the matching entries in the data dictionary.
+
+        Args:
+            df: The data frame whose columns need to be reordered.
+
+        Returns:
+            The reordered data frame.
+        &#34;&#34;&#34;
+        if self.auto_reload:
+            self.__load()
+
+        return df[[x for x in self._names if x in list(df.columns.values)] + [x for x in list(df.columns.values) if
+                                                                              x not in self._names]]
+
+    def add_stats(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;
+        Adds the `Total` and `Average` of the column values as two rows at the top of the data frame.
+
+        Args:
+            df: The data frame to summarise.
+
+        Returns:
+            The data frame with the `Total` and `Average` at the top.
+        &#34;&#34;&#34;
+        if df is None: raise ValueError(&#39;Parameter df is mandatory&#39;)
+        num_agg_map = {col: [&#39;sum&#39;, &#39;mean&#39;] for col in df if is_numeric_dtype(df[col])}
+        func_map = {&#39;sum&#39;: &#39;Total&#39;, &#39;mean&#39;: &#39;Average&#39;}
+        aggr_row = df.agg(num_agg_map).rename(func_map)
+        df = pd.concat([df.iloc[:0], aggr_row, df], sort=False)
+
+        return df
+
+    def format(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;
+        Formats the data frame based on the `Format` attribute in the data dictionary.
+
+        Args:
+            df: The data frame to format.
+
+        Returns:
+            The formatted data frame.
+        &#34;&#34;&#34;
+        if df is None: raise ValueError(&#39;Parameter df is mandatory&#39;)
+
+        # Necessary to define separate function instead of using lambda directly (see https://stackoverflow.com/questions/36805071/dictionary-comprehension-with-lambda-functions-gives-wrong-results)
+        def make_func(f):
+            return lambda x: f.format(x) if not pd.isnull(x) else &#39;-&#39; \
+                                                                  &#39;&#39;
+
+        formats = {col: make_func(f) for (col, f) in self._formats.items()}
+
+        df = df.copy()
+        for col, value in formats.items():
+            if col in df.columns:
+                df[col] = df[col].apply(value)
+
+        return df</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="datadict.DataDict.column_names"><code class="name">var <span class="ident">column_names</span></code></dt>
+<dd>
+<section class="desc"><p>list() -&gt; new empty list
+list(iterable) -&gt; new list initialized from iterable's items</p></section>
+</dd>
+<dt id="datadict.DataDict.supported_types"><code class="name">var <span class="ident">supported_types</span></code></dt>
+<dd>
+<section class="desc"><p>list() -&gt; new empty list
+list(iterable) -&gt; new list initialized from iterable's items</p></section>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="datadict.DataDict.validate"><code class="name flex">
+<span>def <span class="ident">validate</span></span>(<span>data_dict)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Validates the given data dictionary and raises a <code>ValueError</code> if the validation fails.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data_dict</code></strong></dt>
+<dd>The data dictionary to validate.</dd>
+</dl>
+<p>Returns:</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>ValueError</code></strong></dt>
+<dd>If the given data dictionary is not valid.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def validate(data_dict: pd.DataFrame) -&gt; None:
+    &#34;&#34;&#34;
+    Validates the given data dictionary and raises a `ValueError` if the validation fails.
+
+    Args:
+        data_dict: The data dictionary to validate.
+
+    Returns:
+
+    Raises:
+        ValueError: If the given data dictionary is not valid.
+
+    &#34;&#34;&#34;
+    if data_dict is None:
+        return
+
+    data_dict = data_dict.copy()
+
+    # Check that all expected columns exist.
+    if not set(data_dict.columns) &gt;= set(DataDict.column_names):
+        raise ValueError(f&#39;The data dictionary must at least include the following column names: {DataDict.column_names}&#39;)
+
+    # Check that all types are supported Python types.
+    if not set(data_dict[&#39;Type&#39;].values) &lt;= set(DataDict.supported_types):
+        raise ValueError(
+            f&#39;The Type column of the data dictionary contains the following unsupported types {set(data_dict[&#34;Type&#34;].values) - set(DataDict.supported_types)}. Only the following types are supported: {DataDict.supported_types}&#39;)
+
+    # Check that names are unique.
+    if any(data_dict[&#39;Name&#39;].duplicated()):
+        raise ValueError(f&#39;The Name column contains the following duplicates: {data_dict[&#34;Name&#34;][data_dict[&#34;Name&#34;].duplicated()].values}. The names must be unique.&#39;)
+
+    # Check that dataset and field combination is unique.
+    data_dict = data_dict.replace(&#39;&#39;, np.nan)
+    data_dict[&#39;Field ID&#39;] = data_dict[&#39;Data Set&#39;] + &#39;.&#39; + data_dict[&#39;Field&#39;]
+    if any(data_dict[&#39;Field ID&#39;][data_dict[&#39;Field ID&#39;].isnull() == False].duplicated()):
+        raise ValueError(f&#39;The combination of columns Data Set and Field contains the following duplicates: {data_dict[&#34;Field ID&#34;][data_dict[&#34;Field ID&#34;].duplicated()].values}. The combination must be unique.&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="datadict.DataDict.data_dict"><code class="name">var <span class="ident">data_dict</span></code></dt>
+<dd>
+<section class="desc"><p>Data dictionary as a data frame.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def data_dict(self) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;
+    Data dictionary as a data frame.
+    &#34;&#34;&#34;
+    return self._data_dict</code></pre>
+</details>
+</dd>
+<dt id="datadict.DataDict.formats"><code class="name">var <span class="ident">formats</span></code></dt>
+<dd>
+<section class="desc"><p>Dictionary that maps the columns to names to their format strings.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def formats(self) -&gt; Dict[str, str]:
+    &#34;&#34;&#34;
+    Dictionary that maps the columns to names to their format strings.
+    &#34;&#34;&#34;
+    return self._formats</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="datadict.DataDict.add_stats"><code class="name flex">
+<span>def <span class="ident">add_stats</span></span>(<span>self, df)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Adds the <code>Total</code> and <code>Average</code> of the column values as two rows at the top of the data frame.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong></dt>
+<dd>The data frame to summarise.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The data frame with the <code>Total</code> and <code>Average</code> at the top.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_stats(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;
+    Adds the `Total` and `Average` of the column values as two rows at the top of the data frame.
+
+    Args:
+        df: The data frame to summarise.
+
+    Returns:
+        The data frame with the `Total` and `Average` at the top.
+    &#34;&#34;&#34;
+    if df is None: raise ValueError(&#39;Parameter df is mandatory&#39;)
+    num_agg_map = {col: [&#39;sum&#39;, &#39;mean&#39;] for col in df if is_numeric_dtype(df[col])}
+    func_map = {&#39;sum&#39;: &#39;Total&#39;, &#39;mean&#39;: &#39;Average&#39;}
+    aggr_row = df.agg(num_agg_map).rename(func_map)
+    df = pd.concat([df.iloc[:0], aggr_row, df], sort=False)
+
+    return df</code></pre>
+</details>
+</dd>
+<dt id="datadict.DataDict.format"><code class="name flex">
+<span>def <span class="ident">format</span></span>(<span>self, df)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Formats the data frame based on the <code>Format</code> attribute in the data dictionary.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong></dt>
+<dd>The data frame to format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The formatted data frame.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;
+    Formats the data frame based on the `Format` attribute in the data dictionary.
+
+    Args:
+        df: The data frame to format.
+
+    Returns:
+        The formatted data frame.
+    &#34;&#34;&#34;
+    if df is None: raise ValueError(&#39;Parameter df is mandatory&#39;)
+
+    # Necessary to define separate function instead of using lambda directly (see https://stackoverflow.com/questions/36805071/dictionary-comprehension-with-lambda-functions-gives-wrong-results)
+    def make_func(f):
+        return lambda x: f.format(x) if not pd.isnull(x) else &#39;-&#39; \
+                                                              &#39;&#39;
+
+    formats = {col: make_func(f) for (col, f) in self._formats.items()}
+
+    df = df.copy()
+    for col, value in formats.items():
+        if col in df.columns:
+            df[col] = df[col].apply(value)
+
+    return df</code></pre>
+</details>
+</dd>
+<dt id="datadict.DataDict.remap"><code class="name flex">
+<span>def <span class="ident">remap</span></span>(<span>self, df, data_set=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Renames the columns in the given data frame based on based on the <code>Data Set</code> and <code>Field</code> attributes in the data dictionary to <code>Name</code>
+if such a mapping found and converts the columns data to <code>Type</code>. It also reorders the columns based on the order of the data dictionary entries.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong></dt>
+<dd>The data frame to remap.</dd>
+<dt><strong><code>data_set</code></strong></dt>
+<dd>The data set to use. If this value matches a value in the <code>Data Set</code> column of the data dictionary, then the corresponding names in the <code>Field</code>
+column are used to rename the columns of the given data frame to the <code>Name</code> column name. If <code>dataset</code> is not specified, the values in <code>Field</code> column
+that have entries with empty <code>Data Set</code> are used.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The remapped data frame.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remap(self, df: pd.DataFrame, data_set: str = None) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;
+    Renames the columns in the given data frame based on based on the `Data Set` and `Field` attributes in the data dictionary to `Name`
+    if such a mapping found and converts the columns data to `Type`. It also reorders the columns based on the order of the data dictionary entries.
+
+    Args:
+        df: The data frame to remap.
+        data_set: The data set to use. If this value matches a value in the `Data Set` column of the data dictionary, then the corresponding names in the `Field`
+            column are used to rename the columns of the given data frame to the `Name` column name. If `dataset` is not specified, the values in `Field` column
+            that have entries with empty `Data Set` are used.
+
+    Returns:
+        The remapped data frame.
+    &#34;&#34;&#34;
+    if self.auto_reload:
+        self.__load()
+
+    if df is None:
+        raise ValueError(&#39;Parameter df not provided..&#39;)
+
+    if data_set is None:
+        data_set = &#39;&#39;
+
+    dd = self._data_dict[self._data_dict[&#39;Data Set&#39;] == data_set].set_index(&#39;Field&#39;)
+
+    # Ensure that nan is represented as None so that column type conversion does not result in object types if nan is present.
+    df = df.replace(&#39;&#39;, np.nan)
+
+    types_map = dd[&#39;Type&#39;].to_dict()
+    types_map = {col: type for (col, type) in types_map.items() if col in df.columns}  # Remove mapping for columns that are not present in data frame,
+
+    # Treat with bool separately &#39;cause all non-empty strings are converted to True.
+    # Map values of non-bool columns using data type.
+    no_bool_types_map = {col: type for (col, type) in types_map.items() if type != &#39;bool&#39;}
+    df = df.astype(no_bool_types_map, errors=&#39;ignore&#39;)
+
+    # Map values of bool columns using data type.
+    bool_cols = [col for (col, type) in types_map.items() if type == &#39;bool&#39;]
+    df[bool_cols] = df[bool_cols].apply(lambda col: col.map(lambda val: self.__str_to_bool(val)))
+
+    columns_map = dd[&#39;Name&#39;].to_dict()
+    df = df.rename(columns=columns_map)
+    df = self.reorder(df)
+    return df</code></pre>
+</details>
+</dd>
+<dt id="datadict.DataDict.reorder"><code class="name flex">
+<span>def <span class="ident">reorder</span></span>(<span>self, df)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Reorders the given data frame based on the order of the matching entries in the data dictionary.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong></dt>
+<dd>The data frame whose columns need to be reordered.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The reordered data frame.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reorder(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;
+    Reorders the given data frame based on the order of the matching entries in the data dictionary.
+
+    Args:
+        df: The data frame whose columns need to be reordered.
+
+    Returns:
+        The reordered data frame.
+    &#34;&#34;&#34;
+    if self.auto_reload:
+        self.__load()
+
+    return df[[x for x in self._names if x in list(df.columns.values)] + [x for x in list(df.columns.values) if
+                                                                          x not in self._names]]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="datadict.jupyter" href="jupyter/index.html">datadict.jupyter</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="datadict.DataDict" href="#datadict.DataDict">DataDict</a></code></h4>
+<ul class="two-column">
+<li><code><a title="datadict.DataDict.add_stats" href="#datadict.DataDict.add_stats">add_stats</a></code></li>
+<li><code><a title="datadict.DataDict.column_names" href="#datadict.DataDict.column_names">column_names</a></code></li>
+<li><code><a title="datadict.DataDict.data_dict" href="#datadict.DataDict.data_dict">data_dict</a></code></li>
+<li><code><a title="datadict.DataDict.format" href="#datadict.DataDict.format">format</a></code></li>
+<li><code><a title="datadict.DataDict.formats" href="#datadict.DataDict.formats">formats</a></code></li>
+<li><code><a title="datadict.DataDict.remap" href="#datadict.DataDict.remap">remap</a></code></li>
+<li><code><a title="datadict.DataDict.reorder" href="#datadict.DataDict.reorder">reorder</a></code></li>
+<li><code><a title="datadict.DataDict.supported_types" href="#datadict.DataDict.supported_types">supported_types</a></code></li>
+<li><code><a title="datadict.DataDict.validate" href="#datadict.DataDict.validate">validate</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
