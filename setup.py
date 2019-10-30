@@ -25,5 +25,5 @@ setup(name='pandas-datadict',
         ],
         packages=['datadict', 'datadict.jupyter'],
         include_package_data=True,
-        install_requires=['pandas']
+        install_requires=['pandas>=0.19', 'openpyxl']
 )
