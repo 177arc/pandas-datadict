@@ -1,5 +1,6 @@
 import pandas as pd
 import ipywidgets as widgets
+import os
 from IPython.display import display as displ
 from datadict import DataDict
 
@@ -33,13 +34,15 @@ def _display_footer(self, df: pd.DataFrame, df_output: pd.DataFrame, title: str 
     rows = f'{str(df_output.shape[0]) + " out of " if df.shape[0] != df_output.shape[0] else ""}{df.shape[0]:d}'
     columns = f'{df.shape[1]:d}'
     title_size = widgets.HTML(
-        value=f'{title + " " if not title is None else ""}{rows} rows x {columns} columns')
+        value=f'{title + " | " if not title is None else ""}{rows} rows x {columns} columns')
 
     footer_elements = [title_size]
     if not excel_file is None:
-        df_output.to_excel(excel_file)
+        os.makedirs('cache', exist_ok=True)
+        excel_path = os.path.sep.join(['cache', excel_file])
+        df.to_excel(excel_path)
         excel = widgets.HTML(
-            value=f' | <a href="{excel_file}">Excel Download</a>')
+            value=f' | <a href="{excel_path}">Excel Download</a>')
         footer_elements += [excel]
 
     return widgets.HBox(footer_elements)
@@ -60,15 +63,17 @@ def display(self, df: pd.DataFrame, head: int = 10, stats: bool = False, title: 
         Composite Jupyter widget with data frame.
     """
     df_output = df
-    if stats:
-        df_output = self.add_stats(df_output)
 
     if head is not None:
         df_output = df_output.head(head)
 
+    footer = self._display_footer(df, df_output, title, excel_file)
+
+    if stats:
+        df_output = self.add_stats(df_output)
+
     main = self._display_df(df_output)
     dd = self._display_dd(df_output)
-    footer = self._display_footer(df, df_output, title, excel_file)
 
     return widgets.VBox([main, footer, dd])
 
