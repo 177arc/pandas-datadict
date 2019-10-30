@@ -17,7 +17,7 @@ def install():
 
 def build():
     log.info('Building package ...')
-    map(lambda x: os.remove(x), glob.glob('dist/*'))
+    list(map(lambda x: os.remove(x), glob.glob('dist/*')))
     __execute('python setup.py sdist bdist_wheel')
 
 def check():
