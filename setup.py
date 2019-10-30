@@ -5,7 +5,7 @@ from setuptools import setup
 cwd = pathlib.Path(__file__).parent
 
 # The text of the README file
-readme = (cwd / 'pipy.md').read_text()
+readme = (cwd / 'README.md').read_text()
 
 # This call to setup() does all the work
 setup(name='pandas-datadict',
