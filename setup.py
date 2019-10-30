@@ -9,7 +9,7 @@ readme = (cwd / 'pipy.md').read_text()
 
 # This call to setup() does all the work
 setup(name='pandas-datadict',
-        version='0.0.3',
+        version='0.1.0',
         description='Data dictionary functionality for pandas data frames',
         long_description=readme,
         long_description_content_type='text/markdown',
@@ -20,6 +20,7 @@ setup(name='pandas-datadict',
         classifiers=[
             'License :: OSI Approved :: MIT License',
             'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
         ],
         packages=['datadict', 'datadict.jupyter'],
