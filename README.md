@@ -1,6 +1,9 @@
-# Data Dictionary for Pandas
+[![PyPi Downloads](https://pepy.tech/badge/pandas-datadict)](https://pepy.tech/project/pandas-datadict)
+[![PyPi Monthly Downloads](https://pepy.tech/badge/pandas-datadict/month)](https://pepy.tech/project/pandas-datadict/month)
+[![PyPi Version](https://badge.fury.io/py/pandas-datadict.svg)](https://pypi.org/project/pandas-datadict/)
+[![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 
-The `DataDict` class in this package provides functionality for mapping the columns of different pandas data frames into a consistent namespace, ensuring the columns to comply with the data type specified in the data dictionary, describing the data and formatting it.
+# Data Dictionary for pandas
 
 The data dictionary consists at least of the following columns:
 * `Data Set`: Used when mapping in combination with `Field` to rename to the column to `Name`.
@@ -16,10 +19,6 @@ The data dictionary can either be loaded from a CSV file or from a data frame.
 
 ### Using pip
 
-[![PyPi Downloads](https://pepy.tech/badge/pandas-datadict)](https://pepy.tech/project/pandas-datadict)
-[![PyPi Monthly Downloads](https://pepy.tech/badge/pandas-datadict/month)](https://pepy.tech/project/pandas-datadict/month)
-[![PyPi Version](https://badge.fury.io/py/pandas-datadict.svg)](https://pypi.org/project/pandas-datadict/)
-
 You can install using the pip package manager by running
 
     pip install pandas-datadict
@@ -30,97 +29,28 @@ Alternatively, you could install directly from Github:
 
 ### From source
 
-Download the source code by cloning the repository or by pressing ['Download ZIP'](https://github.com/177arc/pandas-datadict/archive/master.zip) on this page.
+Download the source code by cloning the repository or by pressing [Download ZIP](https://github.com/177arc/pandas-datadict/archive/master.zip) on this page.
 Install by navigating to the proper directory and running
 
     python setup.py install
 
 ## Usage
 
-### Pure Python with data dictionary data frame
-
-To use a data dictionary data frame to remap columns of a given data frame:
-```python
-import pandas as pd
-from datetime import datetime
-from datadict import DataDict
-
-# Create data dictionary from data frame
-dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
-       data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', '{:s}'],
-             1: ['data_set_1', 'field_2', 'Name 2', 'Description 2', 'int', '{:d}'],
-             2: ['data_set_1', 'field_3', 'Name 3', 'Description 3', 'bool', '{:}'],
-             3: ['data_set_1', 'field_4', 'Name 4', 'Description 4', 'float', '£{:.1f}m'],
-             4: ['data_set_1', 'field_5', 'Name 5', 'Description 5', 'datetime64', '{:%B %d, %Y}']},
-       columns=['Data Set', 'Field', 'Name', 'Description', 'Type', 'Format']))
-
-# Create example data frame.
-data = {0: ['value 1', 1, True, 1.1, datetime(2019, 1, 1)],
-        1: ['value 2', 2, False, 1.2, datetime(2019, 1, 2)],
-        2: ['value 3', 3, None, None, None]}
-data_df = pd.DataFrame.from_dict(data, orient='index', columns=['Name 1', 'Name 2', 'Name 3', 'Name 4', 'Name 5'])
-
-# Remap the columns of the data frame using the data dictionary
-df = dd.remap(data_df, 'data_set_1')
-
-# Print the data frame with formatted values
-print(dd.format(df))
-```
-
-### Pure Python with data dictionary file
-
-To use a data dictionary file, such as [data_dict.csv](https://github.com/177arc/pandas-datadict/blob/master/tests/data_dict.csv), to remap the columns of a data frame:
-```python
-import pandas as pd
-from datetime import datetime
-from datadict import DataDict
-
-# Load data dictionary from file
-dd = DataDict(data_dict_file='data_dict.csv')
-
-# Create example data frame.
-data = {0: ['value 1', 1, True, 1.1, datetime(2019, 1, 1)],
-        1: ['value 2', 2, False, 1.2, datetime(2019, 1, 2)],
-        2: ['value 3', 3, None, None, None]}
-data_df = pd.DataFrame.from_dict(data, orient='index', columns=['Name 1', 'Name 2', 'Name 3', 'Name 4', 'Name 5'])
-
-# Remap the columns of the data frame using the data dictionary
-df = dd.remap(data_df, 'data_set_1')
-
-# Print the data frame with formatted values
-print(dd.format(df))
-```
-
-### Jupyter Notebook
-When using the data dictionary within Jupyter notebooks, additional functionality for displaying a data frame is available when importing the `datadict.jupyter` package. For example, to display a data frame with its column descriptions:
-```python
-import pandas as pd
-from datetime import datetime
-from datadict.jupyter import DataDict # IMPORTANT: import from datadict.jupyter instead of datadict
-
-# Load data dictionary from file
-dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
-       data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', '{:s}'],
-             1: ['data_set_1', 'field_2', 'Name 2', 'Description 2', 'int', '{:d}'],
-             2: ['data_set_1', 'field_3', 'Name 3', 'Description 3', 'bool', '{:}'],
-             3: ['data_set_1', 'field_4', 'Name 4', 'Description 4', 'float', '£{:.1f}m'],
-             4: ['data_set_1', 'field_5', 'Name 5', 'Description 5', 'datetime64', '{:%B %d, %Y}']},
-       columns=['Data Set', 'Field', 'Name', 'Description', 'Type', 'Format']))
-
-# Create example data frame.
-data = {0: ['value 1', 1, True, 1.1, datetime(2019, 1, 1)],
-        1: ['value 2', 2, False, 1.2, datetime(2019, 1, 2)],
-        2: ['value 3', 3, None, None, None]}
-data_df = pd.DataFrame.from_dict(data, orient='index', columns=['Name 1', 'Name 2', 'Name 3', 'Name 4', 'Name 5'])
-
-# Remap the columns of the data frame using the data dictionary
-df = dd.remap(data_df, 'data_set_1')
-
-# Display the data frame with formatted values and descriptions
-dd.display(df, excel_file='data.xlsx')
-```
-![alt text](https://raw.githubusercontent.com/177arc/pandas-datadict/master/datadict_jupyter_example.png "Data dictionary Jupyter example output")
+For usage guidance and testing the package interactively, hit the [Usage Jupyter Notebook](https://mybinder.org/v2/gh/177arc/pandas-datadict/master?filepath=usage.ipynb).
 
 ## Documentation
 
 For the code documentation, please visit the documentation [Github Pages](https://177arc.github.io/pandas-datadict/docs/datadict/).
+
+## Contributing
+
+1. Fork the repository on GitHub.
+2. Run the tests with `python -m pytest tests/` to confirm they all pass on your system.
+   If the tests fail, then try and find out why this is happening. If you aren't
+   able to do this yourself, then don't hesitate to either create an issue on
+   GitHub, contact me on Discord or send an email to [py@177arc.net](mailto:py@177arc.net>).
+3. Either create your feature and then write tests for it, or do this the other
+   way around.
+4. Run all tests again with with `python -m pytest tests/` to confirm that everything
+   still passes, including your newly added test(s).
+5. Create a pull request for the main repository's ``master`` branch.
