@@ -11,6 +11,15 @@ log.basicConfig(level=log.INFO, format='%(message)s')
 
 
 class TestDataDict(unittest.TestCase):
+    dd: DataDict = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
+                                                   data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', ''],
+                                                         1: ['data_set_1', 'field_2', 'Name 2', 'Description 2', 'int', '{:d}'],
+                                                         2: ['data_set_1', 'field_3', 'Name 3', 'Description 3', 'bool', '{:}'],
+                                                         3: ['data_set_1', 'field_4', 'Name 4', 'Description 4', 'float', '£{:.1f}m'],
+                                                         4: ['data_set_1', 'field_5', 'Name 5', 'Description 5', 'datetime64', '{:%B %d, %Y}']},
+                                                   columns=['Data Set', 'Field', 'Name', 'Description', 'Type',
+                                                            'Format']))
+
     def test_file_and_data_frame(self):
         with self.assertRaisesRegex(ValueError, 'data_dict_file.+data_dict'):
             DataDict(data_dict_file='data_dict.csv', data_dict=pd.DataFrame())
@@ -37,14 +46,6 @@ class TestDataDict(unittest.TestCase):
         assert_frame_equal(expected_dd.data_dict, actual_dd.data_dict)
 
     def test_remap(self):
-        dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
-                                                       data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', ''],
-                                                             1: ['data_set_1', 'field_2', 'Name 2', 'Description 2', 'int', '{:d}'],
-                                                             2: ['data_set_1', 'field_3', 'Name 3', 'Description 3', 'bool', '{:}'],
-                                                             3: ['data_set_1', 'field_4', 'Name 4', 'Description 4', 'float', '£{:.1f}m'],
-                                                             4: ['data_set_1', 'field_5', 'Name 5', 'Description 5', 'datetime64', '']},
-                                                       columns=['Data Set', 'Field', 'Name', 'Description', 'Type', 'Format']))
-
         expected = {0: ['test 1', 1, True, 1.1, datetime(2019, 1, 1), 'bayern'],
                     1: ['test 2', 2, False, 1.2, datetime(2019, 1, 2), 'bayern'],
                     2: ['test 3', 3, np.nan, None, None, 'bayern']}
@@ -59,7 +60,7 @@ class TestDataDict(unittest.TestCase):
                 {'field_1': 'test 3', 'field_2': '3', 'field_3': '', 'field_4': '', 'field_5': '', 'field_6': 'bayern'}]
 
         df = pd.DataFrame.from_records(data)
-        actual_df = dd.remap(df, 'data_set_1')
+        actual_df = self.dd.remap(df, 'data_set_1')
 
         assert_frame_equal(expected_df, actual_df)
 
@@ -151,59 +152,120 @@ class TestDataDict(unittest.TestCase):
 
         assert_frame_equal(expected_df, actual_df)
 
-    def test_add_stats(self):
-        dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
-                                                       data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', ''],
-                                                             1: ['data_set_1', 'field_2', 'Name 2', 'Description 2', 'int', '{:d}'],
-                                                             2: ['data_set_1', 'field_3', 'Name 3', 'Description 3', 'bool', '{:}'],
-                                                             3: ['data_set_1', 'field_4', 'Name 4', 'Description 4', 'float', '£{:.1f}m'],
-                                                             4: ['data_set_1', 'field_5', 'Name 5', 'Description 5', 'datetime64', '']},
-                                                       columns=['Data Set', 'Field', 'Name', 'Description', 'Type',
-                                                                'Format']))
+    def test_has_stats_with_stats(self):
+        data = [{'field_1': 'test 1', 'field_2': '1', 'field_3': 'True', 'field_4': '1.1',  'field_5': '2019-01-01',  'field_6': 'bayern', },
+                { 'field_1': 'test 3', 'field_2': '3', 'field_3': '', 'field_4': '', 'field_5': '', 'field_6': 'bayern', }]
+        df = pd.DataFrame.from_records(data)
+        df = self.dd.add_stats(df)
 
-        expected = {'Total': [np.nan, 6, np.nan, 2.3, np.nan, np.nan],
-                    'Average': [np.nan, 2, np.nan, 1.15, np.nan, np.nan],
-                    0: ['test 1', 1, True, 1.1, datetime(2019, 1, 1), 'bayern'],
-                    1: ['test 2', 2, False, 1.2, datetime(2019, 1, 2), 'bayern'],
-                    2: ['test 3', 3, np.nan, None, None, 'bayern']}
+        self.assertTrue(self.dd.has_stats(df))
+
+    def test_has_stats_without_stats(self):
+        data = [{'field_1': 'test 1', 'field_2': '1', 'field_3': 'True', 'field_4': '1.1',  'field_5': '2019-01-01',  'field_6': 'bayern', },
+                { 'field_1': 'test 3', 'field_2': '3', 'field_3': '', 'field_4': '', 'field_5': '', 'field_6': 'bayern', }]
+        df = pd.DataFrame.from_records(data)
+
+        self.assertFalse(self.dd.has_stats(df))
+
+    def test_add_stats(self):
+        expected = {'Total': [np.nan, 10.0, np.nan, 2.3, np.nan, np.nan],
+                    'Average': [np.nan, 2.5, np.nan, 1.15, np.nan, np.nan],
+                    0: ['test 1', 1.0, True, 1.1, datetime(2019, 1, 1), 'bayern'],
+                    1: ['test 2', 2.0, False, 1.2, datetime(2019, 1, 2), 'bayern'],
+                    2: ['test 3', 3.0, np.nan, None, None, 'bayern'],
+                    3: ['test 4', 4.0, np.nan, None, None, 'bayern']}
         expected_df = pd.DataFrame.from_dict(expected, orient='index',
                                              columns=['Name 1', 'Name 2', 'Name 3', 'Name 4', 'Name 5', 'field_6'])
-        expected_df['Name 4'] = expected_df['Name 4'].astype('float')
-        expected_df = expected_df.astype({'Name 1': 'str', 'Name 2': 'int', 'Name 4': 'float', 'Name 5': 'datetime64', 'field_6': 'str'},
+        expected_df = expected_df.astype({'Name 1': 'str', 'Name 2': 'float', 'Name 4': 'float', 'Name 5': 'datetime64', 'field_6': 'str'},
                                          errors='ignore')
         expected_df = expected_df.replace('nan', np.nan)
 
         data = [{'field_1': 'test 1', 'field_2': '1', 'field_3': 'True', 'field_4': '1.1', 'field_5': '2019-01-01', 'field_6': 'bayern', },
                 {'field_1': 'test 2', 'field_2': '2', 'field_3': 'FALSE', 'field_4': '1.2', 'field_5': '2019-01-02', 'field_6': 'bayern'},
-                {'field_1': 'test 3', 'field_2': '3', 'field_3': '', 'field_4': '', 'field_5': '', 'field_6': 'bayern'}]
+                {'field_1': 'test 3', 'field_2': '3', 'field_3': '', 'field_4': '', 'field_5': '', 'field_6': 'bayern'},
+                {'field_1': 'test 4', 'field_2': '4', 'field_3': '', 'field_4': '', 'field_5': '', 'field_6': 'bayern'}]
 
         df = pd.DataFrame.from_records(data)
-        actual_df = dd.add_stats(dd.remap(df, 'data_set_1'))
+        actual_df = self.dd.remap(df, 'data_set_1')
+        actual_df = self.dd.add_stats(actual_df)
 
         assert_frame_equal(expected_df, actual_df, check_dtype=False)
+        self.assertEqual({'sum': 'Total', 'mean': 'Average'}, actual_df.stats)
 
-    def test_format(self):
-        dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
-                                                       data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', '{:s}'],
-                                                             1: ['data_set_1', 'field_2', 'Name 2', 'Description 2', 'int', '{:d}'],
-                                                             2: ['data_set_1', 'field_3', 'Name 3', 'Description 3', 'bool', '{:}'],
-                                                             3: ['data_set_1', 'field_4', 'Name 4', 'Description 4', 'float', '£{:.1f}m']},
-                                                       columns=['Data Set', 'Field', 'Name', 'Description', 'Type',
-                                                                'Format']))
+    def test_add_stats_with_multi_index(self):
+        expected = [{'Name 1': np.nan, 'Name 2': 'Total', 'Name 3': np.nan, 'Name 4': 2.3, 'Name 5': np.nan, 'field_6': np.nan, },
+                {'Name 1': np.nan, 'Name 2': 'Average', 'Name 3': np.nan, 'Name 4': 1.15, 'Name 5': np.nan, 'field_6': np.nan, },
+                {'Name 1': 'test 1', 'Name 2': 1, 'Name 3': True, 'Name 4': '1.1', 'Name 5': '2019-01-01', 'field_6': 'bayern', },
+                {'Name 1': 'test 2', 'Name 2': 2, 'Name 3': False, 'Name 4': '1.2', 'Name 5': '2019-01-02', 'field_6': 'bayern'},
+                {'Name 1': 'test 3', 'Name 2': 3, 'Name 3': np.nan, 'Name 4': np.nan, 'Name 5': np.nan, 'field_6': 'bayern'},
+                {'Name 1': 'test 4', 'Name 2': 4, 'Name 3': np.nan, 'Name 4': np.nan, 'Name 5': np.nan, 'field_6': 'bayern'}]
 
-        expected = {0: ['test 1', '1', 'True', '£1.1m', 'bayern'],
-                    1: ['test 3', '3', '-', '-', 'bayern']}
-        expected_df = pd.DataFrame.from_dict(expected, orient='index',
-                                             columns=['Name 1', 'Name 2', 'Name 3', 'Name 4', 'field_5'])
-        expected_df = expected_df.astype({'Name 1': 'str', 'Name 2': 'str', 'Name 3': 'str', 'Name 4': 'str', 'field_5': 'str'},
+        expected_df = pd.DataFrame.from_records(expected)
+        expected_df = expected_df.astype({'Name 1': 'str', 'Name 2': 'float', 'Name 4': 'float', 'Name 5': 'datetime64', 'field_6': 'str'},
                                          errors='ignore')
+        expected_df = expected_df.replace('nan', np.nan).set_index(['Name 1', 'Name 2'])
 
-        data = [{'field_1': 'test 1', 'field_2': '1', 'field_3': 'True', 'field_4': '1.1', 'field_5': 'bayern', },
-                { 'field_1': 'test 3', 'field_2': '3', 'field_3': '', 'field_4': '', 'field_5': 'bayern', }]
+        data = [{'field_1': 'test 1', 'field_2': '1', 'field_3': 'True', 'field_4': '1.1', 'field_5': '2019-01-01', 'field_6': 'bayern', },
+                {'field_1': 'test 2', 'field_2': '2', 'field_3': 'FALSE', 'field_4': '1.2', 'field_5': '2019-01-02', 'field_6': 'bayern'},
+                {'field_1': 'test 3', 'field_2': '3', 'field_3': '', 'field_4': '', 'field_5': '', 'field_6': 'bayern'},
+                {'field_1': 'test 4', 'field_2': '4', 'field_3': '', 'field_4': '', 'field_5': '', 'field_6': 'bayern'}]
 
         df = pd.DataFrame.from_records(data)
-        actual_df = dd.remap(df, 'data_set_1')
-        actual_df = dd.format(actual_df)
+        actual_df = self.dd.remap(df, 'data_set_1').set_index(['Name 1', 'Name 2'])
+        actual_df = self.dd.add_stats(actual_df)
+
+        assert_frame_equal(expected_df, actual_df, check_dtype=False)
+        self.assertEqual({'sum': 'Total', 'mean': 'Average'}, actual_df.stats)
+
+    def test_format(self):
+        expected = {0: ['test 1', '1', 'True', '£1.1m', 'January 01, 2019', 'bayern'],
+                    1: ['test 3', '3', '-', '-', '-', 'bayern']}
+        expected_df = pd.DataFrame.from_dict(expected, orient='index',
+                                             columns=['Name 1', 'Name 2', 'Name 3', 'Name 4', 'Name 5', 'field_6'])
+        expected_df = expected_df.astype({'Name 1': 'str', 'Name 2': 'str', 'Name 3': 'str', 'Name 4': 'str', 'Name 5': 'datetime64', 'field_6': 'str'},
+                                         errors='ignore')
+
+        data = [{'field_1': 'test 1', 'field_2': '1', 'field_3': 'True', 'field_4': '1.1',  'field_5': '2019-01-01',  'field_6': 'bayern', },
+                { 'field_1': 'test 3', 'field_2': '3', 'field_3': '', 'field_4': '', 'field_5': '', 'field_6': 'bayern', }]
+        df = pd.DataFrame.from_records(data)
+
+        actual_df = self.dd.remap(df, 'data_set_1')
+        actual_df = self.dd.format(actual_df)
+        self.maxDiff = None
+        assert_frame_equal(expected_df, actual_df)
+
+    def test_format_unmapped_cols(self):
+        expected = {0: ['test 1', 1, 1.0, True, datetime(2019, 1, 1), '-'],
+                    1: ['test 3', 3, 3.0, False, datetime(2019, 1, 3), '-']}
+        expected_df = pd.DataFrame.from_dict(expected, orient='index',
+                                             columns=['field_1', 'field_2', 'field_3', 'field_4', 'field_5', 'field_6'])
+
+        data = [{'field_1': 'test 1', 'field_2': 1, 'field_3': 1.0, 'field_4': True,  'field_5': datetime(2019, 1, 1),  'field_6': None, },
+                {'field_1': 'test 3', 'field_2': 3, 'field_3': 3.0, 'field_4': False, 'field_5': datetime(2019, 1, 3), 'field_6': None, }]
+        df = pd.DataFrame.from_records(data)
+
+        actual_df = self.dd.format(df)
+        self.maxDiff = None
+
+        assert_frame_equal(expected_df, actual_df)
+
+    def test_format_with_stats(self):
+        expected = {'Total': ['-', '3.0', '-', '£1.1m', '-', '-'],
+                    'Average': ['-', '1.5', '-', '£1.1m', '-', '-'],
+                    0: ['test 1', '1.0', 'True', '£1.1m', 'January 01, 2019', 'bayern'],
+                    1: ['test 3', '2.0', 'False', '-', '-', 'bayern']}
+        expected_df = pd.DataFrame.from_dict(expected, orient='index',
+                                             columns=['Name 1', 'Name 2', 'Name 3', 'Name 4', 'Name 5', 'field_6'])
+        expected_df = expected_df.astype({'Name 1': 'str', 'Name 2': 'str', 'Name 3': 'str', 'Name 4': 'str', 'Name 5': 'datetime64', 'field_6': 'str'},
+                                         errors='ignore')
+
+        data = [{'field_1': 'test 1', 'field_2': '1', 'field_3': 'True', 'field_4': '1.1',  'field_5': '2019-01-01',  'field_6': 'bayern', },
+                { 'field_1': 'test 3', 'field_2': '2', 'field_3': 'False', 'field_4': '', 'field_5': '', 'field_6': 'bayern', }]
+
+        df = pd.DataFrame.from_records(data)
+        actual_df = self.dd.remap(df, 'data_set_1')
+        actual_df = self.dd.add_stats(actual_df)
+        actual_df = self.dd.format(actual_df)
         self.maxDiff = None
         assert_frame_equal(expected_df, actual_df)
 

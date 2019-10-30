@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
+import warnings
 import os
-from pandas.api.types import is_numeric_dtype
 from os import path
+from pandas.api.types import is_numeric_dtype
 from typing import Dict
 
 class DataDict:
@@ -30,6 +31,7 @@ class DataDict:
 
     column_names = ['Data Set', 'Field', 'Name', 'Description', 'Type', 'Format']
     supported_types = ['float', 'float32', 'float64', 'int', 'int32', 'int64', 'object', 'str', 'bool', 'datetime64', 'timedelta', 'category']
+    stats = {'sum': 'Total', 'mean': 'Average'}
     meta = None
 
     def __aggr(self, series: pd.Series):
@@ -216,11 +218,10 @@ class DataDict:
         Returns:
             The reordered data frame.
         """
-        if self.auto_reload:
-            self.__load()
+        if self.auto_reload: self.__load()
 
-        return df[[x for x in self._names if x in list(df.columns.values)] + [x for x in list(df.columns.values) if
-                                                                              x not in self._names]]
+        return df[[x for x in self._names if x in list(df.columns.values)]
+                  + [x for x in list(df.columns.values) if x not in self._names]]
 
     def add_stats(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -233,12 +234,34 @@ class DataDict:
             The data frame with the `Total` and `Average` at the top.
         """
         if df is None: raise ValueError('Parameter df is mandatory')
-        num_agg_map = {col: ['sum', 'mean'] for col in df if is_numeric_dtype(df[col])}
-        func_map = {'sum': 'Total', 'mean': 'Average'}
-        aggr_row = df.agg(num_agg_map).rename(func_map)
+
+        num_agg_map = {col: DataDict.stats.keys() for col in df if is_numeric_dtype(df[col]) and df[col].dtype != np.bool}
+        aggr_row = df.agg(num_agg_map).rename(DataDict.stats)
+        if len(df.index.names) > 1:
+            aggr_row = pd.concat([aggr_row], keys=[np.nan]*len(DataDict.stats.keys()), names=df.index.names[1:])
         df = pd.concat([df.iloc[:0], aggr_row, df], sort=False)
 
+        # Adds the dictionary of stats to the data frame.
+        if not hasattr(df, 'stats'):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                df.stats = {}
+
+        df.stats = {**df.stats, **DataDict.stats}
+
         return df
+
+    def has_stats(self, df: pd.DataFrame):
+        """
+        Checks whether the given data frame has stats rows added at the top of the data frame.
+
+        Args:
+            df: The data frame to check.
+
+        Returns:
+            Whether the given data frame has stats.
+        """
+        return hasattr(df, 'stats')
 
     def format(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -253,18 +276,32 @@ class DataDict:
         if df is None: raise ValueError('Parameter df is mandatory')
 
         # Necessary to define separate function instead of using lambda directly (see https://stackoverflow.com/questions/36805071/dictionary-comprehension-with-lambda-functions-gives-wrong-results)
-        def make_func(f):
-            return lambda x: f.format(x) if not pd.isnull(x) else '-' \
-                                                                  ''
+        def make_func(f: str = None):
+            def format_value(x):
+                if f is None or f == '':
+                    return x if not pd.isnull(x) else '-'
 
-        formats = {col: make_func(f) for (col, f) in self._formats.items()}
+                return f.format(x) if not pd.isnull(x) else '-'
+
+            # If mean is part of the stats, then the integer numbers need to be formatted as floats because the mean of integers can be float.
+            if self.has_stats(df) and 'mean' in df.stats.keys() and not f is None:
+                f = f.replace(':d', ':.1f')
+
+            return lambda x: format_value(x)
+
+        # Assembles a dictionary with columns as key and format functions as values but only for the columns that are actually in the data frame.
+        formats = {col: make_func(f) for (col, f) in self._formats.items() if col in df.columns.values}
+        formats  = {**formats, **{col: make_func() for col in set(df.columns.values)-set(self._formats.keys())}}
 
         df = df.copy()
         for col, value in formats.items():
-            if col in df.columns:
+            try:
                 df[col] = df[col].apply(value)
+            except ValueError as e:
+                warnings.warn(f'A value in column {col} could not be formatted.\nError message: {e}')
 
         return df
+
 
 DataDict.meta = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
              data={0: ['data_dict', 'data_set', 'Data Set', 'Used when mapping in combination with Field to rename to the column to Name.', 'str', '{:s}'],
