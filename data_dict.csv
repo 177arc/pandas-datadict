@@ -1,0 +1,8 @@
+Data Set,Field,Name,Description,Type,Format
+data_set_1,field_1,Name 1,Description 1,str,
+data_set_1,field_2,Name 2,Description 2,int,{:d}
+data_set_1,field_3,Name 3,Description 3,bool,{:}
+data_set_1,field_4,Name 4,Description 4,float,£{:.1f}m
+data_set_1,field_5,Name 5,Description 5,datetime64,"{:%B %d, %Y}"
+data_set_2,field_1,Name 21,Description 1,str,
+,,Name 22,Description 2,int,{:d}
