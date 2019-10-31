@@ -13,13 +13,13 @@ The data dictionary consists at least of the following columns:
 * `Type`: Type the column should be cast to.
 * `Format`: Format to use when values need to be converted to a string representation. The format string has to be a Python format string such as `{:.0f}%`
 
-The data dictionary can either be loaded from a CSV file or from a data frame.
+The data dictionary can either be loaded from a CSV file ([example data dictionary](https://github.com/177arc/pandas-datadict/data_dict_fpl.csv)) or from a data frame.
 
 ## Installation
 
 ### Using pip
 
-You can install using the pip package manager by running
+You can install using the pip package manager by running:
 
     pip install pandas-datadict
 
