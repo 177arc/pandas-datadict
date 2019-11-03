@@ -21,6 +21,7 @@ class DataDict:
 
     The data dictionary can either be loaded from a CSV file or from a data frame.
     """
+
     _data_dict_file: str
     _data_dict_updated: float = None
     _data_dict: pd.DataFrame
@@ -28,11 +29,10 @@ class DataDict:
     _names: list
 
     auto_reload: bool
-
     column_names = ['Data Set', 'Field', 'Name', 'Description', 'Type', 'Format']
     supported_types = ['float', 'float32', 'float64', 'int', 'int32', 'int64', 'object', 'str', 'bool', 'datetime64', 'timedelta', 'category']
     stats = {'sum': 'Total', 'mean': 'Average'}
-    meta = None
+    meta: object
 
     def __aggr(self, series: pd.Series):
         funcs = self._data_dict[self._data_dict['Name'] == series.name]['Default Aggregation'].values
