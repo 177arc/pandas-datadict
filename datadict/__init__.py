@@ -221,9 +221,6 @@ class DataDict:
         # Ensure that nan is represented as None so that column type conversion does not result in object types if nan is present.
         df = df.replace('', np.nan)
 
-        if ensure_cols:
-            df = self.ensure_cols(df, data_set=data_set)
-
         types_map = dd['Type'].to_dict()
         types_map = {col: type for (col, type) in types_map.items() if col in df.columns}  # Remove mapping for columns that are not present in data frame.
 
@@ -239,6 +236,10 @@ class DataDict:
         columns_map = dd['Name'].to_dict()
         df = df.rename(columns=columns_map)
         df = self.reorder(df)
+
+        if ensure_cols:
+            df = self.ensure_cols(df, data_set=data_set)
+
         return df
 
     @auto_reload

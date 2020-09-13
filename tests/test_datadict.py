@@ -179,7 +179,7 @@ class TestDataDict(unittest.TestCase):
 
         expected_df = pd.DataFrame.from_dict({}, orient='index', columns=['Name 1'])
 
-        df = pd.DataFrame.from_dict({}, orient='index', columns=[])
+        df = pd.DataFrame.from_dict({}, orient='index', columns=['field_1'])
         actual_df = dd.remap(df, 'data_set_1', True)
         assert_frame_equal(expected_df, actual_df, check_dtype=False)
 
@@ -300,10 +300,11 @@ class TestDataDict(unittest.TestCase):
                                                        columns=['Data Set', 'Field', 'Name', 'Description', 'Type',
                                                                 'Format']))
 
-        expected_df = pd.DataFrame.from_dict({}, orient='index', columns=['Name 1', 'Name 2'])
+        data = {0: ['test 1', 1]}
+        expected_df = pd.DataFrame.from_dict(data, orient='index', columns=['Name 1', 'Name 2'])
 
-        df = pd.DataFrame.from_dict({}, orient='index', columns=['Name 1', 'Name 2'])
-        actual_df = dd.ensure_cols(df, data_set='data_set_1')
+        actual_df = pd.DataFrame.from_dict(data, orient='index', columns=['Name 1', 'Name 2'])
+        actual_df = dd.ensure_cols(actual_df, data_set='data_set_1')
         assert_frame_equal(expected_df, actual_df, check_dtype=False)
 
     def test_ensure_cols_df_no_cols_ds(self):
