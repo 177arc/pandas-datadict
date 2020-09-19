@@ -276,8 +276,9 @@ class DataDict:
         if cols is None:
             cols = list(self.df(data_set)['Name'].values)
 
-        missing_cols = [v for v in cols if v not in df.columns.values]
-        return df.reindex(columns=list(df.columns.values) + missing_cols)
+        current_cols = list(df.columns.values)+list(df.index.names)
+        missing_cols = [v for v in cols if v not in current_cols]
+        return df.reindex(columns=(list(df.columns.values)+missing_cols))
 
     @auto_reload
     def strip_cols(self, df: pd.DataFrame, data_set: str = None, any_data_set: bool = False):

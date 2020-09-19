@@ -320,6 +320,19 @@ class TestDataDict(unittest.TestCase):
         actual_df = dd.ensure_cols(df, data_set='data_set_1')
         assert_frame_equal(expected_df, actual_df, check_dtype=False)
 
+    def test_ensure_cols_df_index_cols_ds(self):
+        dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
+                                                       data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', ''],
+                                                             1: ['data_set_1', 'field_2', 'Name 2', 'Description 2', 'int', '{:d}']},
+                                                       columns=['Data Set', 'Field', 'Name', 'Description', 'Type',
+                                                                'Format']))
+
+        expected_df = pd.DataFrame.from_dict({}, orient='index', columns=['Name 1', 'Name 2']).set_index('Name 1')
+
+        df = pd.DataFrame.from_dict({}, orient='index', columns=['Name 1']).set_index('Name 1')
+        actual_df = dd.ensure_cols(df, data_set='data_set_1')
+        assert_frame_equal(expected_df, actual_df, check_dtype=False)
+
     def test_strip_cols(self):
         dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
                                                        data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', ''],
