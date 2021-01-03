@@ -24,173 +24,21 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import pandas as pd
-import ipywidgets as widgets
-import os
-from IPython.display import display as displ
-from datadict import DataDict
-
-
-def _display_df(self, df_output: pd.DataFrame, index: bool = True):
-    df_style = self.format(df_output).style
-    if not index: df_style = df_style.hide_index()
-
-    out_df = widgets.Output()
-    with out_df:
-        displ(df_style)
-
-    return out_df
-
-
-def _display_dd(self, df_output: pd.DataFrame):
-    data_dict = self._data_dict[[&#39;Name&#39;, &#39;Description&#39;]]
-    data_dict = data_dict[data_dict[&#39;Name&#39;].isin(df_output.columns)]
-
-    dd_style = data_dict.style.format(self._formats).hide_index().set_table_styles([
-            dict(selector=&#34;th&#34;, props=[(&#34;text-align&#34;, &#34;left&#34;)]),
-            dict(selector=&#34;td&#34;, props=[(&#34;text-align&#34;, &#34;left&#34;)]),
-        ])
-
-    dd_out = widgets.Output()
-    with dd_out:
-        displ(dd_style)
-
-    dd_accordion = widgets.Accordion(children=[dd_out])
-    dd_accordion.set_title(0, &#39;Data Description&#39;)
-    dd_accordion.selected_index = None
-    return dd_accordion
-
-
-def _display_footer(self, df: pd.DataFrame, df_output: pd.DataFrame, title: str = None, excel_file: str = None):
-    rows = f&#39;{str(df_output.shape[0]) + &#34; out of &#34; if df.shape[0] != df_output.shape[0] else &#34;&#34;}{df.shape[0]:d}&#39;
-    columns = f&#39;{df.shape[1]:d}&#39;
-    title_size = widgets.HTML(
-        value=f&#39;{title + &#34; | &#34; if not title is None else &#34;&#34;}{rows} rows x {columns} columns&#39;)
-
-    footer_elements = [title_size]
-    if not excel_file is None:
-        os.makedirs(&#39;cache&#39;, exist_ok=True)
-        excel_path = os.path.sep.join([&#39;cache&#39;, excel_file])
-        df.to_excel(excel_path)
-        excel = widgets.HTML(
-            value=f&#39; | &lt;a href=&#34;{excel_path}&#34;&gt;Excel Download&lt;/a&gt;&#39;)
-        footer_elements += [excel]
-
-    return widgets.HBox(footer_elements)
-
-
-def display(self, df: pd.DataFrame, head: int = 10, stats: bool = False, title: str = None, excel_file: str = None, footer: bool = True, descriptions: bool = True, index: bool = True):
-    &#34;&#34;&#34;
-    Displays the given data frame in a Jupyter notebook. It formats the values based on the format specification in the data dictionary.
-
-    Args:
-        df: The data frame to display.
-        head: The number of row to display from the top.
-        stats: Whether to add the total and the average to the top of the data frame.
-        title: The title to show at the top.
-        excel_file: The name of the excel file that is accessible at the bottom of the page. If no excel file is specified, the link will not be available.
-        footer: Whether to show the footer with the row and column counts.
-        descriptions: Whether to show the data (column) descriptions.
-
-    Returns:
-        Composite Jupyter widget with data frame.
-    &#34;&#34;&#34;
-    df_output = df
-
-    if head is not None:
-        df_output = df_output.head(head)
-
-    footer_part = self._display_footer(df, df_output, title, excel_file)
-
-    if stats:
-        df_output = self.add_stats(df_output)
-
-    main_part = self._display_df(df_output, index = index)
-    dd_part = self._display_dd(df_output)
-
-    display_parts = [main_part]
-    if footer: display_parts += [footer_part]
-    if descriptions: display_parts += [dd_part]
-    return widgets.VBox(display_parts)
-
-
-DataDict._display_df = _display_df
-DataDict._display_dd = _display_dd
-DataDict._display_footer = _display_footer
-DataDict.display = display</code></pre>
+<pre><code class="python">from .jupyter import *</code></pre>
 </details>
 </section>
 <section>
-</section>
-<section>
-</section>
-<section>
-<h2 class="section-title" id="header-functions">Functions</h2>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt id="datadict.jupyter.display"><code class="name flex">
-<span>def <span class="ident">display</span></span>(<span>self, df, head=10, stats=False, title=None, excel_file=None, footer=True, descriptions=True, index=True)</span>
-</code></dt>
+<dt><code class="name"><a title="datadict.jupyter.jupyter" href="jupyter.html">datadict.jupyter.jupyter</a></code></dt>
 <dd>
-<section class="desc"><p>Displays the given data frame in a Jupyter notebook. It formats the values based on the format specification in the data dictionary.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>df</code></strong></dt>
-<dd>The data frame to display.</dd>
-<dt><strong><code>head</code></strong></dt>
-<dd>The number of row to display from the top.</dd>
-<dt><strong><code>stats</code></strong></dt>
-<dd>Whether to add the total and the average to the top of the data frame.</dd>
-<dt><strong><code>title</code></strong></dt>
-<dd>The title to show at the top.</dd>
-<dt><strong><code>excel_file</code></strong></dt>
-<dd>The name of the excel file that is accessible at the bottom of the page. If no excel file is specified, the link will not be available.</dd>
-<dt><strong><code>footer</code></strong></dt>
-<dd>Whether to show the footer with the row and column counts.</dd>
-<dt><strong><code>descriptions</code></strong></dt>
-<dd>Whether to show the data (column) descriptions.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>Composite Jupyter widget with data frame.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def display(self, df: pd.DataFrame, head: int = 10, stats: bool = False, title: str = None, excel_file: str = None, footer: bool = True, descriptions: bool = True, index: bool = True):
-    &#34;&#34;&#34;
-    Displays the given data frame in a Jupyter notebook. It formats the values based on the format specification in the data dictionary.
-
-    Args:
-        df: The data frame to display.
-        head: The number of row to display from the top.
-        stats: Whether to add the total and the average to the top of the data frame.
-        title: The title to show at the top.
-        excel_file: The name of the excel file that is accessible at the bottom of the page. If no excel file is specified, the link will not be available.
-        footer: Whether to show the footer with the row and column counts.
-        descriptions: Whether to show the data (column) descriptions.
-
-    Returns:
-        Composite Jupyter widget with data frame.
-    &#34;&#34;&#34;
-    df_output = df
-
-    if head is not None:
-        df_output = df_output.head(head)
-
-    footer_part = self._display_footer(df, df_output, title, excel_file)
-
-    if stats:
-        df_output = self.add_stats(df_output)
-
-    main_part = self._display_df(df_output, index = index)
-    dd_part = self._display_dd(df_output)
-
-    display_parts = [main_part]
-    if footer: display_parts += [footer_part]
-    if descriptions: display_parts += [dd_part]
-    return widgets.VBox(display_parts)</code></pre>
-</details>
+<section class="desc"></section>
 </dd>
 </dl>
+</section>
+<section>
+</section>
+<section>
 </section>
 <section>
 </section>
@@ -201,9 +49,9 @@ DataDict.display = display</code></pre>
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="datadict.jupyter.display" href="#datadict.jupyter.display">display</a></code></li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="datadict.jupyter.jupyter" href="jupyter.html">datadict.jupyter.jupyter</a></code></li>
 </ul>
 </li>
 </ul>

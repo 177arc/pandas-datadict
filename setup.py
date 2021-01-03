@@ -9,7 +9,7 @@ readme = (cwd / 'README.md').read_text()
 
 # This call to setup() does all the work
 setup(name='pandas-datadict',
-        version='0.2.2',
+        version='0.2.3',
         description='Data dictionary functionality for pandas data frames',
         long_description=readme,
         long_description_content_type='text/markdown',

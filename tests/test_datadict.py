@@ -6,6 +6,7 @@ import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from datetime import datetime
 import numpy as np
+import pickle
 
 log.basicConfig(level=log.INFO, format='%(message)s')
 
@@ -108,23 +109,23 @@ class TestDataDict(unittest.TestCase):
                                                              1: ['', 'field_1', 'Name 2', 'Description 2', 'int', '{:d}']},
                                                        columns=['Data Set', 'Field', 'Name', 'Description', 'Type', 'Format']))
 
-        with self.assertRaisesRegex(ValueError, f'Either data_set can be provide or any_data_set can be True but not both.'):
+        with self.assertRaisesRegex(ValueError, f'Either data_set can be provided or any_data_set can be True but not both.'):
             dd.df(data_set='data_set_1', any_data_set=True)
 
 
     def test_remap(self):
         expected = {0: ['test 1', 1, True, 1.1, datetime(2019, 1, 1), 'bayern'],
                     1: ['test 2', 2, False, 1.2, datetime(2019, 1, 2), 'bayern'],
-                    2: ['test 3', 3, np.nan, None, None, 'bayern']}
+                    2: [None, 3, np.nan, None, None, 'bayern']}
         expected_df = pd.DataFrame.from_dict(expected, orient='index',
                                              columns=['Name 1', 'Name 2', 'Name 3', 'Name 4', 'Name 5', 'field_6'])
         expected_df['Name 4'] = expected_df['Name 4'].astype('float')
-        expected_df = expected_df.astype({'Name 1': 'str', 'Name 2': 'int', 'Name 4': 'float', 'Name 5': 'datetime64', 'field_6': 'str'},
+        expected_df = expected_df.astype({'Name 2': 'int', 'Name 4': 'float', 'Name 5': 'datetime64', 'field_6': 'str'},
                                          errors='ignore')
 
         data = [{'field_1': 'test 1', 'field_2': '1', 'field_3': 'True', 'field_4': '1.1', 'field_5': '2019-01-01', 'field_6': 'bayern', },
                 {'field_1': 'test 2', 'field_2': '2', 'field_3': 'FALSE', 'field_4': '1.2', 'field_5': '2019-01-02', 'field_6': 'bayern'},
-                {'field_1': 'test 3', 'field_2': '3', 'field_3': '', 'field_4': '', 'field_5': '', 'field_6': 'bayern'}]
+                {'field_1': '', 'field_2': '3', 'field_3': '', 'field_4': '', 'field_5': '', 'field_6': 'bayern'}]
 
         df = pd.DataFrame.from_records(data)
         actual_df = self.dd.remap(df, 'data_set_1')
@@ -170,7 +171,7 @@ class TestDataDict(unittest.TestCase):
         actual_df = dd.remap(df, 'data_set_1')
         assert_frame_equal(expected_df, actual_df, check_dtype=False)
 
-    def test_remap_empty_df_ensure_columns(self):
+    def test_remap_empty_df_ensure_cols(self):
         dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
                                                        data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', ''],
                                                              1: ['', 'field_1', 'Name 2', 'Description 2', 'int', '{:d}']},
@@ -183,7 +184,7 @@ class TestDataDict(unittest.TestCase):
         actual_df = dd.remap(df, 'data_set_1', True)
         assert_frame_equal(expected_df, actual_df, check_dtype=False)
 
-    def test_remap_empty_df_ensure_columns_none_data_set(self):
+    def test_remap_empty_df_ensure_cols_none_data_set(self):
         dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
                                                        data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', ''],
                                                              1: ['', 'field_1', 'Name 2', 'Description 2', 'int', '{:d}']},
@@ -193,6 +194,32 @@ class TestDataDict(unittest.TestCase):
         df = pd.DataFrame.from_dict({}, orient='index', columns=[])
         with self.assertRaises(ValueError):
             dd.remap(df, None, True)
+
+    def test_remap_empty_df_strip_cols(self):
+        dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
+                                                       data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', ''],
+                                                             1: ['', 'field_1', 'Name 2', 'Description 2', 'int', '{:d}']},
+                                                       columns=['Data Set', 'Field', 'Name', 'Description', 'Type',
+                                                                'Format']))
+
+        expected_df = pd.DataFrame.from_dict({}, orient='index', columns=['Name 1'])
+
+        df = pd.DataFrame.from_dict({}, orient='index', columns=['field_1', 'field_2'])
+        actual_df = dd.remap(df, 'data_set_1', ensure_cols=True, strip_cols=True)
+        assert_frame_equal(expected_df, actual_df, check_dtype=False)
+
+    def test_remap_empty_df_no_strip_cols(self):
+        dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
+                                                       data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', ''],
+                                                             1: ['', 'field_1', 'Name 2', 'Description 2', 'int', '{:d}']},
+                                                       columns=['Data Set', 'Field', 'Name', 'Description', 'Type',
+                                                                'Format']))
+
+        expected_df = pd.DataFrame.from_dict({}, orient='index', columns=['Name 1', 'field_2'])
+
+        df = pd.DataFrame.from_dict({}, orient='index', columns=['field_1', 'field_2'])
+        actual_df = dd.remap(df, 'data_set_1', ensure_cols=True, strip_cols=False)
+        assert_frame_equal(expected_df, actual_df, check_dtype=False)
 
     def test_remap_reorder(self):
         dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
@@ -530,3 +557,13 @@ class TestDataDict(unittest.TestCase):
                                                                 'Format']))
 
         self.assertTrue(True)
+
+    def test_hash(self):
+        dd = DataDict(data_dict=pd.DataFrame.from_dict(orient='index',
+                                                       data={0: ['data_set_1', 'field_1', 'Name 1', 'Description 1', 'str', ''],
+                                                             1: ['', '', 'Name 2', 'Description 2', 'int', '{:d}'],
+                                                             2: ['', '', 'Name 3', 'Description 3', 'int', '{:d}']},
+                                                       columns=['Data Set', 'Field', 'Name', 'Description', 'Type',
+                                                                'Format']))
+
+        self.assertEqual(hash(dd), hash(pickle.dumps(dd.data_dict)))
